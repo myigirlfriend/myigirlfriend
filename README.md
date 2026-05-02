@@ -27,6 +27,7 @@ The platform has a user-facing chat UI, a Stripe subscription system, and an ope
 | Hosting | Railway (backend) + Vercel (frontend) | Easy deploys |
 
 ---
+theme is same  
 
 ## Brand / Theme
 
