@@ -51,8 +51,19 @@ router.post('/suggest', async (req, res) => {
     .from('conversations').select('persona_id').eq('id', conversationId).single()
   if (!conv) return err(res, 'Conversation not found', 404)
 
-  const suggestions = await generateSuggestions(conv.persona_id, messages || [])
-  ok(res, { suggestions })
+  try {
+    const suggestions = await generateSuggestions(conv.persona_id, messages || [])
+    ok(res, { suggestions })
+  } catch (e) {
+    // OpenAI quota exceeded or unavailable — return placeholder suggestions
+    ok(res, {
+      suggestions: [
+        "Hey, I'm here for you 💜",
+        "Tell me more, I'm listening...",
+        "That's really interesting, go on 😊"
+      ]
+    })
+  }
 })
 
 // Operator sends a reply (as persona)

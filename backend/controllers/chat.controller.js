@@ -111,11 +111,16 @@ const sendMessage = async (req, res) => {
 // Get conversation message history
 const getHistory = async (req, res) => {
   const { conversationId } = req.params
-  const userId = req.user.id
+  const isOperator = req.user?.role === 'operator'
 
-  const { data: conv } = await supabase
-    .from('conversations').select('id').eq('id', conversationId).eq('user_id', userId).single()
-  if (!conv) return err(res, 'Not found', 404)
+  if (!isOperator) {
+    const { data: conv } = await supabase
+      .from('conversations').select('id')
+      .eq('id', conversationId)
+      .eq('user_id', req.user.id)
+      .single()
+    if (!conv) return err(res, 'Not found', 404)
+  }
 
   const { data: messages } = await supabase
     .from('messages').select('*')

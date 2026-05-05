@@ -24,8 +24,11 @@ api.interceptors.response.use(
   (res) => res.data,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().clearAuth()
-      window.location.href = '/login'
+      const isOperatorRoute = window.location.pathname.startsWith('/operator')
+      if (!isOperatorRoute) {
+        useAuthStore.getState().clearAuth()
+        window.location.href = '/login'
+      }
     }
     const message = error.response?.data?.error || 'Something went wrong'
     return Promise.reject(new Error(message))
