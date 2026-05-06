@@ -87,9 +87,9 @@ const sendMessage = async (req, res) => {
     .eq('user_id', userId)
 
   // Generate AI reply
-  // const replyContent = await generateReply(conv.personas.id, memory || [], history || [])
+  const replyContent = await generateReply(conv.personas.id, memory || [], history || [])
    // Add this fake reply for now:
-  const replyContent = "Hey! I'm here 💜 (AI coming soon)"
+  // const replyContent = "Hey! I'm here 💜 (AI coming soon)"
   // Save AI reply
   const { data: aiMessage } = await supabase
     .from('messages')
