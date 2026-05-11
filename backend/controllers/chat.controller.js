@@ -78,11 +78,15 @@ if (!isPaid && count >= FREE_LIMIT) {
     .order('created_at', { ascending: true })
     .limit(30)
 
-  // Fetch user memory
-  const { data: memory } = await supabase
-    .from('user_memory')
-    .select('key, value')
-    .eq('user_id', userId)
+// Fetch user memory
+const { data: memory } = await supabase
+  .from('user_memory')
+  .select('key, value')
+  .eq('user_id', userId)
+
+// Extract and save memory from user message (non-blocking)
+const memoryService = require('../services/memory.service')
+memoryService.extractAndSave(userId, content).catch(() => {})
 
   // Generate AI reply
   const replyContent = await generateReply(conv.personas.id, memory || [], history || [])
