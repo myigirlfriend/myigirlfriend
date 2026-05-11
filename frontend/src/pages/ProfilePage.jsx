@@ -4,6 +4,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useSubStore } from '@store/index'
 import api from '@services/api'
 import Badge from '@components/common/Badge'
+import { SkeletonProfileStat } from '@components/common/Skeleton'
 import Spinner from '@components/common/Spinner'
 
 export default function ProfilePage() {
@@ -67,10 +68,13 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="card mb-4">
           <div className="text-brand-muted text-sm font-semibold mb-3">My Stats</div>
-          {loading ? (
-            <div className="flex justify-center py-4"><Spinner /></div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
+{loading ? (
+  <div className="grid grid-cols-2 gap-3">
+    <SkeletonProfileStat />
+    <SkeletonProfileStat />
+  </div>
+) : (
+  <div className="grid grid-cols-2 gap-3">
               <div className="bg-brand-surface rounded-xl p-3 text-center">
                 <div className="gradient-text text-2xl font-extrabold">
                   {stats?.totalMessages || 0}
