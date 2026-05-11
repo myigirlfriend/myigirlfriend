@@ -79,4 +79,99 @@ router.post('/reply', async (req, res) => {
   ok(res, { message: msg })
 })
 
+// Get today's hours
+router.get('/hours', async (req, res) => {
+  const operatorId = req.operator.id
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+
+  const { data: sessions } = await supabase
+    .from('operator_sessions')
+    .select('clock_in, clock_out')
+    .eq('operator_id', operatorId)
+    .gte('clock_in', todayStart.toISOString())
+    .order('clock_in', { ascending: false })
+
+  // Check if currently clocked in
+  const activeSession = sessions?.find(s => !s.clock_out)
+
+  // Calculate total minutes today (excluding current session)
+  const totalMinutesToday = (sessions || [])
+    .filter(s => s.clock_out)
+    .reduce((sum, s) => {
+      const mins = Math.floor(
+        (new Date(s.clock_out) - new Date(s.clock_in)) / 60000
+      )
+      return sum + mins
+    }, 0)
+
+  ok(res, {
+    totalMinutesToday,
+    activeSince: activeSession?.clock_in || null,
+  })
+})
+
+// Clock in
+router.post('/hours/clockin', async (req, res) => {
+  const operatorId = req.operator.id
+
+  // Check not already clocked in
+  const { data: active } = await supabase
+    .from('operator_sessions')
+    .select('id')
+    .eq('operator_id', operatorId)
+    .is('clock_out', null)
+    .single()
+
+  if (active) return err(res, 'Already clocked in')
+
+  const { data: session } = await supabase
+    .from('operator_sessions')
+    .insert({ operator_id: operatorId })
+    .select().single()
+
+  ok(res, { session })
+})
+
+// Clock out
+router.post('/hours/clockout', async (req, res) => {
+  const operatorId = req.operator.id
+
+  // Find active session
+  const { data: active } = await supabase
+    .from('operator_sessions')
+    .select('id, clock_in')
+    .eq('operator_id', operatorId)
+    .is('clock_out', null)
+    .single()
+
+  if (!active) return err(res, 'Not clocked in')
+
+  await supabase
+    .from('operator_sessions')
+    .update({ clock_out: new Date().toISOString() })
+    .eq('id', active.id)
+
+  // Recalculate today total
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+
+  const { data: sessions } = await supabase
+    .from('operator_sessions')
+    .select('clock_in, clock_out')
+    .eq('operator_id', operatorId)
+    .gte('clock_in', todayStart.toISOString())
+
+  const totalMinutesToday = (sessions || [])
+    .filter(s => s.clock_out)
+    .reduce((sum, s) => {
+      const mins = Math.floor(
+        (new Date(s.clock_out) - new Date(s.clock_in)) / 60000
+      )
+      return sum + mins
+    }, 0)
+
+  ok(res, { totalMinutesToday })
+})
+
 module.exports = router
