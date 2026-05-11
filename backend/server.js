@@ -9,6 +9,7 @@ const chatRoutes = require('./routes/chat.routes')
 const personaRoutes = require('./routes/persona.routes')
 const subscriptionRoutes = require('./routes/subscription.routes')
 const operatorRoutes = require('./routes/operator.routes')
+const profileRoutes = require('./routes/profile.routes')
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -25,6 +26,7 @@ app.use(express.json())
 app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true }))
 
 // ─── Routes ──────────────────────────────────────────────────
+app.use('/api/profile', profileRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/personas', personaRoutes)
