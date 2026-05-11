@@ -11,6 +11,7 @@ import SubscriptionPage from '@pages/SubscriptionPage'
 import ProfilePage from '@pages/ProfilePage'
 import OperatorLoginPage from '@pages/operator/OperatorLoginPage'
 import OperatorDashboardPage from '@pages/operator/OperatorDashboardPage'
+import Navbar from '@components/common/Navbar'
 
 // Route guards
 function PrivateRoute({ children }) {
@@ -25,30 +26,33 @@ function OperatorRoute({ children }) {
 
 function PublicRoute({ children }) {
   const user = useAuthStore((s) => s.user)
-  return !user ? children : <Navigate to="/chat" replace />
+  return !user ? children : <Navigate to="/personas" replace />
 }
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+    <>
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-      {/* Protected user routes */}
-      <Route path="/personas" element={<PrivateRoute><PersonaSelectPage /></PrivateRoute>} />
-      <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
-      <Route path="/chat/:conversationId" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
-      <Route path="/subscription" element={<PrivateRoute><SubscriptionPage /></PrivateRoute>} />
-      <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        {/* Protected user routes */}
+        <Route path="/personas" element={<PrivateRoute><PersonaSelectPage /></PrivateRoute>} />
+        <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
+        <Route path="/chat/:conversationId" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
+        <Route path="/subscription" element={<PrivateRoute><SubscriptionPage /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
-      {/* Operator routes */}
-      <Route path="/operator/login" element={<OperatorLoginPage />} />
-      <Route path="/operator/dashboard" element={<OperatorRoute><OperatorDashboardPage /></OperatorRoute>} />
+        {/* Operator routes */}
+        <Route path="/operator/login" element={<OperatorLoginPage />} />
+        <Route path="/operator/dashboard" element={<OperatorRoute><OperatorDashboardPage /></OperatorRoute>} />
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Navbar />
+    </>
   )
 }

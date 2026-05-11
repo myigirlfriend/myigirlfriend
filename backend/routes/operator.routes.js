@@ -58,7 +58,7 @@ router.post('/suggest', async (req, res) => {
     // OpenAI quota exceeded or unavailable — return placeholder suggestions
     ok(res, {
       suggestions: [
-        "Hey, I'm here for you 💜",
+        "Hey, I'm here for you",
         "Tell me more, I'm listening...",
         "That's really interesting, go on 😊"
       ]

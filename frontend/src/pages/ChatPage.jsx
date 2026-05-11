@@ -51,7 +51,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-24 space-y-3">
         {messages.length === 0 && (
           <div className="text-center text-brand-muted text-sm mt-10">
             <div className="text-3xl mb-3">{activePersona.emoji}</div>
@@ -67,7 +67,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="px-4 py-3 border-t border-brand-border bg-brand-surface shrink-0 flex gap-2">
+      <form onSubmit={handleSend} className="px-4 py-3 mb-16 border-t border-brand-border bg-brand-surface shrink-0 flex gap-2">
         <input
           className="input-field flex-1"
           placeholder={`Message ${activePersona.name}…`}
