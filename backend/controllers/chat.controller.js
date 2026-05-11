@@ -45,25 +45,23 @@ const sendMessage = async (req, res) => {
     .single()
   if (!conv) return err(res, 'Conversation not found', 404)
 
-  // Usage check for free users
-  const { data: usage } = await supabase
-    .from('usage_tracking')
-    .select('message_count')
-    .eq('user_id', userId)
-    .single()
+// Usage check — enforced server side
+const [usageResult, subResult] = await Promise.all([
+  supabase.from('usage_tracking').select('message_count').eq('user_id', userId).single(),
+  supabase.from('subscriptions').select('plan, status').eq('user_id', userId).single()
+])
 
-  const { data: sub } = await supabase
-    .from('subscriptions')
-    .select('plan, status')
-    .eq('user_id', userId)
-    .single()
+const isPaid = subResult.data?.status === 'active'
+const count = usageResult.data?.message_count || 0
 
-  const isPaid = sub?.status === 'active'
-  const count = usage?.message_count || 0
-
-  if (!isPaid && count >= FREE_LIMIT) {
-    return ok(res, { triggerUpsell: true, message: null })
-  }
+// Hard block on backend — cannot be bypassed from frontend
+if (!isPaid && count >= FREE_LIMIT) {
+  return ok(res, {
+    triggerUpsell: true,
+    message: null,
+    reason: 'free_limit_reached'
+  })
+}
 
   // Save user message
   await supabase.from('messages').insert({
