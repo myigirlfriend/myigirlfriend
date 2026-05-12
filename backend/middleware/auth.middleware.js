@@ -17,11 +17,15 @@ const operatorMiddleware = (req, res, next) => {
   if (!header?.startsWith('Bearer ')) return err(res, 'Unauthorized', 401)
   try {
     const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET)
-    if (decoded.role !== 'operator') return err(res, 'Forbidden', 403)
+    console.log('[operatorMiddleware] decoded:', decoded) // debug line
+    if (decoded.role !== 'operator' && decoded.role !== 'admin' && decoded.role !== 'agent') {
+      return err(res, 'Forbidden', 403)
+    }
     req.operator = decoded
     next()
-  } catch {
-    err(res, 'Invalid or expired token', 401)
+  } catch (e) {
+    console.error('[operatorMiddleware] error:', e.message)
+    err(res, 'Invalid token', 401)
   }
 }
 

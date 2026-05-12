@@ -15,23 +15,35 @@ router.post('/login', async (req, res) => {
   if (!valid) return err(res, 'Invalid credentials', 401)
 
   const token = jwt.sign(
-    { id: operator.id, name: operator.name, email: operator.email, role: 'operator' },
+    { id: operator.id, name: operator.name, email: operator.email, role: operator.role },
     process.env.JWT_SECRET, { expiresIn: '12h' }
   )
-  ok(res, { operator: { id: operator.id, name: operator.name, email: operator.email, token } })
+
+  // Make sure role is included in response
+  ok(res, { operator: { id: operator.id, name: operator.name, email: operator.email, role: operator.role, token } })
 })
 
 // All routes below require operator auth
 router.use(operatorMiddleware)
 
-// Get active conversation queue
+// Get queue — admin sees all, agents see only assigned
 router.get('/queue', async (req, res) => {
-  const { data: convs } = await supabase
+  const isAdmin = req.operator.role === 'admin'
+  const operatorId = req.operator.id
+
+  let query = supabase
     .from('conversations')
-    .select('id, status, created_at, users(name), personas(name), messages(count)')
+    .select('id, status, created_at, assigned_to, users(name), personas(name), messages(count)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(50)
+
+  // Agents only see their assigned conversations
+  if (!isAdmin) {
+    query = query.eq('assigned_to', operatorId)
+  }
+
+  const { data: convs } = await query
 
   const mapped = (convs || []).map(c => ({
     id: c.id,
@@ -39,8 +51,34 @@ router.get('/queue', async (req, res) => {
     personaName: c.personas?.name || 'Unknown',
     messageCount: c.messages?.[0]?.count || 0,
     createdAt: c.created_at,
+    assignedTo: c.assigned_to,
   }))
+
   ok(res, { conversations: mapped })
+})
+
+// Assign conversation to agent
+router.post('/assign', async (req, res) => {
+  if (req.operator.role !== 'admin') return err(res, 'Forbidden', 403)
+  const { conversationId, operatorId } = req.body
+  if (!conversationId) return err(res, 'conversationId required')
+
+  await supabase
+    .from('conversations')
+    .update({ assigned_to: operatorId || null })
+    .eq('id', conversationId)
+
+  ok(res, { success: true })
+})
+
+// Get all operators for assignment dropdown
+router.get('/agents', async (req, res) => {
+  if (req.operator.role !== 'admin') return err(res, 'Forbidden', 403)
+  const { data: agents } = await supabase
+    .from('operators')
+    .select('id, name, email, role')
+    .order('name')
+  ok(res, { agents: agents || [] })
 })
 
 // Generate AI reply suggestions for operator

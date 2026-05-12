@@ -10,10 +10,22 @@ const api = axios.create({
 // ─── Request interceptor: attach JWT ─────────────────────────
 api.interceptors.request.use(
   (config) => {
-    const user = useAuthStore.getState().user
-    const operator = useAuthStore.getState().operator
-    const token = user?.token || operator?.token
-    if (token) config.headers.Authorization = `Bearer ${token}`
+    const isOperatorRoute = config.url?.includes('/api/operator')
+    const isOnOperatorPage = window.location.pathname.startsWith('/operator')
+
+    if (isOperatorRoute || isOnOperatorPage) {
+      // Use operator token for operator routes AND any request made from operator pages
+      const operator = useAuthStore.getState().operator
+      if (operator?.token) {
+        config.headers.Authorization = `Bearer ${operator.token}`
+      }
+    } else {
+      // Use user token for everything else
+      const user = useAuthStore.getState().user
+      if (user?.token) {
+        config.headers.Authorization = `Bearer ${user.token}`
+      }
+    }
     return config
   },
   (error) => Promise.reject(error)

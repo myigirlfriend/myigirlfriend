@@ -23,8 +23,23 @@ app.use('/api/subscription/webhook', express.raw({ type: 'application/json' }))
 app.use(express.json())
 
 // ─── Global rate limiter ──────────────────────────────────────
-app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true }))
+// ─── Global rate limiter ──────────────────────────────────────
+app.use('/api/', rateLimit({ 
+  windowMs: 15 * 60 * 1000, 
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+}))
 
+// Stricter limiter for auth routes only
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/register', authLimiter)
 // ─── Routes ──────────────────────────────────────────────────
 app.use('/api/profile', profileRoutes)
 app.use('/api/auth', authRoutes)

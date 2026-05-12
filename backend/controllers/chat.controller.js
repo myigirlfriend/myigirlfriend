@@ -88,10 +88,12 @@ const { data: memory } = await supabase
 const memoryService = require('../services/memory.service')
 memoryService.extractAndSave(userId, content).catch(() => {})
 
-  // Generate AI reply
-  const replyContent = await generateReply(conv.personas.id, memory || [], history || [])
-   // Add this fake reply for now:
-  // const replyContent = "Hey! I'm here 💜 (AI coming soon)"
+let replyContent
+try {
+  replyContent = await generateReply(conv.personas.id, memory || [], history || [])
+} catch (e) {
+  replyContent = "Hey, I'm here for you"
+}
   // Save AI reply
   const { data: aiMessage } = await supabase
     .from('messages')
@@ -113,7 +115,8 @@ memoryService.extractAndSave(userId, content).catch(() => {})
 // Get conversation message history
 const getHistory = async (req, res) => {
   const { conversationId } = req.params
-  const isOperator = req.user?.role === 'operator'
+  const role = req.user?.role
+  const isOperator = role === 'admin' || role === 'agent'
 
   if (!isOperator) {
     const { data: conv } = await supabase
