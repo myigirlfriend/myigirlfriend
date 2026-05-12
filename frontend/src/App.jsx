@@ -12,6 +12,7 @@ import ProfilePage from '@pages/ProfilePage'
 import OperatorLoginPage from '@pages/operator/OperatorLoginPage'
 import OperatorDashboardPage from '@pages/operator/OperatorDashboardPage'
 import Navbar from '@components/common/Navbar'
+import AdminHoursPage from '@pages/operator/AdminHoursPage'
 
 // Route guards
 function PrivateRoute({ children }) {
@@ -48,6 +49,7 @@ export default function App() {
         {/* Operator routes */}
         <Route path="/operator/login" element={<OperatorLoginPage />} />
         <Route path="/operator/dashboard" element={<OperatorRoute><OperatorDashboardPage /></OperatorRoute>} />
+        <Route path="/operator/hours" element={<OperatorRoute><AdminHoursPage /></OperatorRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -174,4 +174,52 @@ router.post('/hours/clockout', async (req, res) => {
   ok(res, { totalMinutesToday })
 })
 
+// Admin only — view all agents hours for a date
+router.get('/admin/hours', async (req, res) => {
+  // Only admin role can access
+  if (req.operator.role !== 'admin') return err(res, 'Forbidden', 403)
+
+  const date = req.query.date || new Date().toISOString().split('T')[0]
+  const dayStart = new Date(date)
+  dayStart.setHours(0, 0, 0, 0)
+  const dayEnd = new Date(date)
+  dayEnd.setHours(23, 59, 59, 999)
+
+  // Get all operators
+  const { data: operators } = await supabase
+    .from('operators')
+    .select('id, name, email, role')
+    .order('name')
+
+  // Get all sessions for that date
+  const { data: sessions } = await supabase
+    .from('operator_sessions')
+    .select('operator_id, clock_in, clock_out')
+    .gte('clock_in', dayStart.toISOString())
+    .lte('clock_in', dayEnd.toISOString())
+
+  // Map sessions to each operator
+  const agents = (operators || []).map(op => {
+    const opSessions = (sessions || []).filter(s => s.operator_id === op.id)
+    const totalMinutes = opSessions
+      .filter(s => s.clock_out)
+      .reduce((sum, s) => {
+        return sum + Math.floor(
+          (new Date(s.clock_out) - new Date(s.clock_in)) / 60000
+        )
+      }, 0)
+
+    return {
+      id: op.id,
+      name: op.name,
+      email: op.email,
+      role: op.role,
+      totalMinutes,
+      sessions: opSessions,
+    }
+  })
+
+  ok(res, { agents, date })
+})
+
 module.exports = router

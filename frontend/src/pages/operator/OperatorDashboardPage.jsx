@@ -4,6 +4,7 @@ import api from '@services/api'
 import toast from 'react-hot-toast'
 import { formatTime } from '@utils/formatTime'
 import AgentHours from '@components/operator/AgentHours'
+import { useNavigate } from 'react-router-dom'
 
 export default function OperatorDashboardPage() {
   const operator = useAuthStore(s => s.operator)
@@ -15,6 +16,7 @@ export default function OperatorDashboardPage() {
   const [input, setInput] = useState('')
   const [loadingSugg, setLoadingSugg] = useState(false)
   const bottomRef = useRef(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchQueue()
@@ -68,12 +70,22 @@ export default function OperatorDashboardPage() {
       <div className="w-64 border-r border-brand-border flex flex-col shrink-0">
 
         {/* Agent info */}
-        <div className="p-4 border-b border-brand-border shrink-0">
-          <div className="gradient-text font-bold text-sm">Agent: {operator?.name}</div>
-          <button onClick={clearAuth} className="text-xs text-brand-muted hover:text-white mt-1">
-            Sign out
-          </button>
-        </div>
+<div className="p-4 border-b border-brand-border shrink-0">
+  <div className="gradient-text font-bold text-sm">Agent: {operator?.name}</div>
+  <div className="flex items-center gap-3 mt-1">
+    <button onClick={clearAuth} className="text-xs text-brand-muted hover:text-white transition-colors">
+      Sign out
+    </button>
+    {operator?.role === 'admin' && (
+      <button
+        onClick={() => navigate('/operator/hours')}
+        className="text-xs text-brand-purple hover:text-brand-pink transition-colors font-semibold"
+      >
+        View Hours →
+      </button>
+    )}
+  </div>
+</div>
 
         {/* Queue list */}
         <div className="flex-1 overflow-y-auto p-2 space-y-2">
