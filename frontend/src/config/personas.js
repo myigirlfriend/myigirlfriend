@@ -1,8 +1,8 @@
-/**
- * PERSONAS CONFIG
- * Single source of truth for all persona metadata used across the app.
- * Backend system prompts live in backend/services/ai.service.js
- */
+import zaraImg from '@/assets/personas/zara.jpeg'
+import mayaImg from '@/assets/personas/maya.jpeg'
+import elenaImg from '@/assets/personas/elena.jpeg'
+import mariahImg from '@/assets/personas/mariah.jpeg'
+import hannahImg from '@/assets/personas/hannah.jpeg'
 
 export const PERSONAS = [
   {
@@ -11,7 +11,7 @@ export const PERSONAS = [
     tagline: 'The Playful Flirt',
     description: 'Bold, witty, and a little cheeky. She keeps things exciting.',
     tone: 'playful, teasing, confident',
-    emoji: '💜',
+    image: zaraImg,        // ← add this
     gradientFrom: '#9B59B6',
     gradientTo: '#E91E8C',
     accentColor: '#E91E8C',
@@ -23,7 +23,7 @@ export const PERSONAS = [
     tagline: 'The Supportive Listener',
     description: 'Warm, patient, and genuinely interested in your world.',
     tone: 'warm, empathetic, caring',
-    emoji: '🌸',
+    image: mayaImg,        // ← add this
     gradientFrom: '#8B5CF6',
     gradientTo: '#EC4899',
     accentColor: '#EC4899',
@@ -35,7 +35,7 @@ export const PERSONAS = [
     tagline: 'The Deep Thinker',
     description: 'Calm, philosophical, and always says something that makes you think.',
     tone: 'calm, intellectual, thoughtful',
-    emoji: '✨',
+    image: elenaImg,       // ← add this
     gradientFrom: '#6366F1',
     gradientTo: '#A855F7',
     accentColor: '#A855F7',
@@ -47,7 +47,7 @@ export const PERSONAS = [
     tagline: 'The Sweet Romantic',
     description: 'Gentle, affectionate, and makes you feel genuinely cared for.',
     tone: 'soft, romantic, affectionate',
-    emoji: '🌹',
+    image: mariahImg,      // ← add this
     gradientFrom: '#EC4899',
     gradientTo: '#F43F5E',
     accentColor: '#F43F5E',
@@ -59,7 +59,7 @@ export const PERSONAS = [
     tagline: 'The Easygoing Friend',
     description: 'Casual, funny, and zero pressure. Like texting your best friend.',
     tone: 'casual, funny, chill',
-    emoji: '😄',
+    image: hannahImg,      // ← add this
     gradientFrom: '#F59E0B',
     gradientTo: '#EF4444',
     accentColor: '#F59E0B',
@@ -69,6 +69,6 @@ export const PERSONAS = [
 
 export const getPersonaById = (id) => PERSONAS.find((p) => p.id === id) ?? null
 
-export const FREE_MESSAGE_LIMIT = 10       // messages before upsell
-export const FREE_SESSION_MINUTES = 10     // minutes before upsell
+export const FREE_MESSAGE_LIMIT = 10
+export const FREE_SESSION_MINUTES = 10
 export const FREE_SESSION_MS = FREE_SESSION_MINUTES * 60 * 1000

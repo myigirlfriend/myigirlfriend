@@ -3,13 +3,13 @@ import { motion } from 'framer-motion'
 import { usePersona } from '@hooks/usePersona'
 import { PERSONAS } from '@config/personas'
 import { SkeletonPersonaCard } from '@components/common/Skeleton'
+import Avatar from '@components/common/Avatar'
 
 export default function PersonaSelectPage() {
   const { selectPersona } = usePersona()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Small delay to show skeleton then snap to content
     const t = setTimeout(() => setLoading(false), 600)
     return () => clearTimeout(t)
   }, [])
@@ -36,12 +36,9 @@ export default function PersonaSelectPage() {
                 onClick={() => selectPersona(p)}
                 className="card flex items-center gap-4 text-left hover:border-brand-purple/60 hover:shadow-brand transition-all duration-200 w-full"
               >
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl shrink-0 shadow-brand"
-                  style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                >
-                  {p.emoji}
-                </div>
+                {/* ← Now uses Avatar with real image */}
+                <Avatar persona={p} size="lg" />
+
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-white text-lg">{p.name}</div>
                   <div className="gradient-text text-sm font-semibold">{p.tagline}</div>

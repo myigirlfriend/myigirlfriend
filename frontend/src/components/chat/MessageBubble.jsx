@@ -11,13 +11,28 @@ export default function MessageBubble({ message, persona }) {
       transition={{ duration: 0.2 }}
       className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
     >
-      {/* Avatar — AI only */}
+      {/* Avatar — AI/operator only */}
       {!isUser && (
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-          style={{ background: `linear-gradient(135deg, ${persona?.gradientFrom ?? '#9B59B6'}, ${persona?.gradientTo ?? '#E91E8C'})` }}
+          className="w-8 h-8 rounded-full overflow-hidden shrink-0"
+          style={{ border: `1.5px solid ${persona?.accentColor || '#9B59B6'}` }}
         >
-          {persona?.name?.[0] ?? 'A'}
+          {persona?.image ? (
+            <img
+              src={persona.image}
+              alt={persona.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center text-xs font-bold text-white"
+              style={{
+                background: `linear-gradient(135deg, ${persona?.gradientFrom ?? '#9B59B6'}, ${persona?.gradientTo ?? '#E91E8C'})`
+              }}
+            >
+              {persona?.name?.[0] ?? 'A'}
+            </div>
+          )}
         </div>
       )}
 
@@ -25,9 +40,12 @@ export default function MessageBubble({ message, persona }) {
         <div
           className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
             isUser
-              ? 'bg-brand-gradient text-white rounded-br-sm'
+              ? 'text-white rounded-br-sm'
               : 'bg-brand-card border border-brand-border text-brand-text rounded-bl-sm'
           }`}
+          style={isUser ? {
+            background: `linear-gradient(135deg, ${persona?.gradientFrom ?? '#9B59B6'}, ${persona?.gradientTo ?? '#E91E8C'})`
+          } : {}}
         >
           {message.content}
         </div>
