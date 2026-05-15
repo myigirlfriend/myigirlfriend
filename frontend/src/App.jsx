@@ -13,6 +13,7 @@ import OperatorLoginPage from '@pages/operator/OperatorLoginPage'
 import OperatorDashboardPage from '@pages/operator/OperatorDashboardPage'
 import Navbar from '@components/common/Navbar'
 import AdminHoursPage from '@pages/operator/AdminHoursPage'
+import ChatListPage from '@pages/ChatListPage'
 
 // Route guards
 function PrivateRoute({ children }) {
@@ -41,7 +42,7 @@ export default function App() {
 
         {/* Protected user routes */}
         <Route path="/personas" element={<PrivateRoute><PersonaSelectPage /></PrivateRoute>} />
-        <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
+        <Route path="/chat" element={<PrivateRoute><ChatListPage /></PrivateRoute>} />
         <Route path="/chat/:conversationId" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
         <Route path="/subscription" element={<PrivateRoute><SubscriptionPage /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />

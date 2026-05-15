@@ -5,8 +5,31 @@ import api from '@services/api'
 import toast from 'react-hot-toast'
 
 const PLANS = [
-  { id: 'basic', label: 'Basic', price: '$9.99', period: '/mo', features: ['Unlimited messages', '1 persona', 'Standard support'] },
-  { id: 'premium', label: 'Premium', price: '$19.99', period: '/mo', features: ['Unlimited messages', 'All 5 personas', 'Memory system', 'Priority support'], popular: true },
+  {
+    id: 'basic',
+    label: 'Basic',
+    price: '$9.99',
+    period: '/ 7 days',
+    features: [
+      'Unlimited messages',
+      '1 companion of your choice',
+      'She remembers you',
+      'Standard support'
+    ]
+  },
+  {
+    id: 'premium',
+    label: 'Premium',
+    price: '$19.99',
+    period: '/ month',
+    features: [
+      'Unlimited messages',
+      'All 5 companions',
+      'Deep memory system',
+      'Priority support'
+    ],
+    popular: true
+  },
 ]
 
 export default function SubscriptionPage() {

@@ -127,7 +127,7 @@ const PLANS = [
   {
     name: 'Basic',
     price: '$9.99',
-    period: '/mo',
+    period: ' / 7 days',
     features: ['Unlimited messages', '1 companion of your choice', 'She remembers you'],
     cta: 'Get Basic',
     primary: false
@@ -135,7 +135,7 @@ const PLANS = [
   {
     name: 'Premium',
     price: '$19.99',
-    period: '/mo',
+    period: ' / month',
     features: ['Unlimited messages', 'All 5 companions', 'Deep memory system', 'Priority experience'],
     cta: 'Get Premium',
     primary: true

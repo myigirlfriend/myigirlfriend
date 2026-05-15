@@ -23,19 +23,29 @@ export default function UpsellModal() {
         </p>
 
         {/* Plan options */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="card border-brand-purple/40 text-left">
-            <div className="gradient-text font-bold text-lg mb-1">Basic</div>
-            <div className="text-white font-bold text-2xl mb-1">$9.99<span className="text-sm text-brand-muted font-normal">/mo</span></div>
-            <div className="text-brand-muted text-xs">Unlimited chats · 1 persona</div>
-          </div>
-          <div className="card border border-brand-pink/40 text-left relative overflow-hidden">
-            <div className="absolute top-2 right-2 bg-brand-gradient text-white text-xs font-bold px-2 py-0.5 rounded-full">Popular</div>
-            <div className="gradient-text font-bold text-lg mb-1">Premium</div>
-            <div className="text-white font-bold text-2xl mb-1">$19.99<span className="text-sm text-brand-muted font-normal">/mo</span></div>
-            <div className="text-brand-muted text-xs">All personas · Memory</div>
-          </div>
-        </div>
+<div className="grid grid-cols-2 gap-3 mb-6">
+  <div className="card border-brand-purple/40 text-left">
+    <div className="gradient-text font-bold text-lg mb-1">Basic</div>
+    <div className="text-white font-bold text-2xl mb-1">
+      $9.99
+      <span className="text-xs text-brand-muted font-normal"> / 7 days</span>
+    </div>
+    <div className="text-brand-muted text-xs">Unlimited · 1 companion</div>
+  </div>
+  <div className="plan-wrap relative">
+    <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-brand-gradient text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
+      Popular
+    </div>
+    <div className="card border border-brand-pink/40 text-left">
+      <div className="gradient-text font-bold text-lg mb-1">Premium</div>
+      <div className="text-white font-bold text-2xl mb-1">
+        $19.99
+        <span className="text-xs text-brand-muted font-normal"> / month</span>
+      </div>
+      <div className="text-brand-muted text-xs">All personas · Memory</div>
+    </div>
+  </div>
+</div>
 
         <Button
           fullWidth

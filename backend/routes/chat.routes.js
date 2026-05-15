@@ -19,5 +19,35 @@ const anyAuth = (req, res, next) => {
 router.post('/start', authMiddleware, startChat)
 router.post('/send', authMiddleware, sendMessage)
 router.get('/history/:conversationId', anyAuth, getHistory)
+// Get all conversations for logged in user
+router.get('/conversations', authMiddleware, async (req, res) => {
+  const supabase = require('../config/supabase')
+  const { ok } = require('../utils/response')
+  const userId = req.user.id
+
+  const { data: convs } = await supabase
+    .from('conversations')
+    .select('id, persona_id, created_at, status, messages(content, created_at)')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+
+  const mapped = (convs || []).map(c => {
+    const msgs = c.messages || []
+    const lastMsg = msgs.sort((a, b) =>
+      new Date(b.created_at) - new Date(a.created_at)
+    )[0]
+
+    return {
+      id: c.id,
+      personaId: c.persona_id,
+      createdAt: c.created_at,
+      lastMessage: lastMsg?.content?.slice(0, 60) || null,
+      lastMessageAt: lastMsg?.created_at || c.created_at,
+    }
+  })
+
+  ok(res, { conversations: mapped })
+})
 
 module.exports = router
