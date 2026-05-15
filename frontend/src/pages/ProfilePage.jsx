@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@hooks/useAuth'
 import { useSubStore } from '@store/index'
+import { getPersonaById } from '@config/personas'
+import { LogOut, MessageCircle, Crown, Calendar, ChevronRight, Zap } from 'lucide-react'
 import api from '@services/api'
-import Badge from '@components/common/Badge'
-import { SkeletonProfileStat } from '@components/common/Skeleton'
-import Spinner from '@components/common/Spinner'
 
 export default function ProfilePage() {
   const { user, logout } = useAuth()
-  const { plan, subStatus } = useSubStore()
+  const { plan, subStatus, setPlan, setSubStatus } = useSubStore()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -20,8 +19,8 @@ export default function ProfilePage() {
       api.get('/api/profile/stats'),
     ])
       .then(([sub, profile]) => {
-        useSubStore.getState().setPlan(sub.plan)
-        useSubStore.getState().setSubStatus(sub.status)
+        setPlan(sub.plan)
+        setSubStatus(sub.status)
         setStats(profile)
       })
       .catch(() => {})
@@ -30,102 +29,211 @@ export default function ProfilePage() {
 
   const isPaid = subStatus === 'active'
 
-  return (
-    <div className="min-h-screen bg-brand-dark px-4 py-10 pb-24">
-      <div className="max-w-sm mx-auto">
-        <h1 className="text-2xl font-extrabold gradient-text mb-6">My Profile</h1>
+  // Member since
+  const memberSince = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })
+    : 'Recently joined'
 
-        {/* Avatar + name */}
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-brand-gradient flex items-center justify-center text-2xl font-extrabold text-white shadow-brand">
-            {user?.name?.[0]?.toUpperCase()}
-          </div>
-          <div>
-            <div className="font-bold text-white text-lg">{user?.name}</div>
-            <div className="text-brand-muted text-sm">{user?.email}</div>
-          </div>
+  // Initials for avatar
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : '?'
+
+  return (
+    <div className="min-h-screen pb-28" style={{
+      background: 'radial-gradient(ellipse at top, #1a0a2e 0%, #0a0a0a 70%)',
+    }}>
+
+      {/* Ambient glow */}
+      <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10 blur-3xl pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #E91E8C, transparent)' }} />
+
+      {/* Header */}
+      <div className="px-4 pt-14 pb-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-extrabold text-white">My Profile</h1>
+          <button
+            onClick={logout}
+            className="flex items-center gap-1.5 text-brand-muted hover:text-red-400 transition-colors text-sm font-semibold"
+          >
+            <LogOut size={15} />
+            Sign out
+          </button>
         </div>
 
-        {/* Plan status */}
-        <div className="card mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-brand-muted text-sm font-semibold">Current Plan</span>
-            <Badge
-              label={isPaid ? plan.toUpperCase() : 'FREE'}
-              variant={isPaid ? 'gradient' : 'default'}
-            />
+        {/* Avatar + name card */}
+        <div className="flex items-center gap-4">
+          {/* Gradient avatar */}
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-extrabold text-xl shadow-brand shrink-0"
+            style={{ background: 'linear-gradient(135deg, #9B59B6, #E91E8C)' }}
+          >
+            {initials}
           </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-extrabold text-white text-lg leading-tight truncate">
+              {user?.name}
+            </div>
+            <div className="text-brand-muted text-xs truncate mt-0.5">{user?.email}</div>
+            <div className="flex items-center gap-1 mt-1.5">
+              <Calendar size={11} className="text-brand-muted" />
+              <span className="text-brand-muted text-xs">Joined {memberSince}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 space-y-3">
+
+        {/* Plan card */}
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background: isPaid
+              ? 'linear-gradient(135deg, rgba(155,89,182,0.2), rgba(233,30,140,0.2))'
+              : 'rgba(255,255,255,0.04)',
+            border: isPaid ? '1px solid rgba(155,89,182,0.4)' : '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Crown size={18} className={isPaid ? 'text-yellow-400' : 'text-brand-muted'} />
+              <span className="text-white font-bold text-sm">
+                {isPaid ? `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan` : 'Free Plan'}
+              </span>
+            </div>
+            <div
+              className="text-xs font-bold px-3 py-1 rounded-full"
+              style={isPaid ? {
+                background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                color: 'white',
+              } : {
+                background: 'rgba(255,255,255,0.08)',
+                color: '#6b7280',
+              }}
+            >
+              {isPaid ? 'ACTIVE' : 'FREE'}
+            </div>
+          </div>
+
           {!isPaid && (
             <button
               onClick={() => navigate('/subscription')}
-              className="w-full py-2.5 rounded-xl bg-brand-gradient text-white text-sm font-bold hover:opacity-90 transition-opacity"
+              className="mt-3 w-full py-2.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #9B59B6, #E91E8C)' }}
             >
-              Upgrade Now ⭐
+              <Zap size={15} />
+              Upgrade for unlimited access
             </button>
           )}
         </div>
 
         {/* Stats */}
-        <div className="card mb-4">
-          <div className="text-brand-muted text-sm font-semibold mb-3">My Stats</div>
-{loading ? (
-  <div className="grid grid-cols-2 gap-3">
-    <SkeletonProfileStat />
-    <SkeletonProfileStat />
-  </div>
-) : (
-  <div className="grid grid-cols-2 gap-3">
-              <div className="bg-brand-surface rounded-xl p-3 text-center">
-                <div className="gradient-text text-2xl font-extrabold">
-                  {stats?.totalMessages || 0}
-                </div>
-                <div className="text-brand-muted text-xs mt-1">Messages sent</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            {loading ? (
+              <div className="h-8 w-12 bg-brand-card rounded mx-auto animate-pulse" />
+            ) : (
+              <div
+                className="text-3xl font-extrabold"
+                style={{
+                  background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                {stats?.totalMessages || 0}
               </div>
-              <div className="bg-brand-surface rounded-xl p-3 text-center">
-                <div className="gradient-text text-2xl font-extrabold">
-                  {stats?.totalConversations || 0}
-                </div>
-                <div className="text-brand-muted text-xs mt-1">Conversations</div>
+            )}
+            <div className="text-brand-muted text-xs mt-1 font-medium">Messages sent</div>
+          </div>
+
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            {loading ? (
+              <div className="h-8 w-12 bg-brand-card rounded mx-auto animate-pulse" />
+            ) : (
+              <div
+                className="text-3xl font-extrabold"
+                style={{
+                  background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                {stats?.totalConversations || 0}
               </div>
-            </div>
-          )}
+            )}
+            <div className="text-brand-muted text-xs mt-1 font-medium">Conversations</div>
+          </div>
         </div>
 
-        {/* Recent conversations */}
-        <div className="card mb-6">
-          <div className="text-brand-muted text-sm font-semibold mb-3">Recent Chats</div>
-          {loading ? (
-            <div className="flex justify-center py-4"><Spinner /></div>
-          ) : stats?.recentConversations?.length > 0 ? (
-            <div className="space-y-2">
-              {stats.recentConversations.map((conv) => (
+        {/* Recent chats */}
+        {!loading && stats?.recentConversations?.length > 0 && (
+          <div
+            className="rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <div className="px-4 py-3 border-b border-white/5">
+              <div className="flex items-center gap-2">
+                <MessageCircle size={14} className="text-brand-purple" />
+                <span className="text-white font-bold text-sm">Recent Chats</span>
+              </div>
+            </div>
+
+            {stats.recentConversations.map((conv, i) => {
+              const persona = getPersonaById(conv.personaName?.toLowerCase() || conv.personaId)
+              const displayName = persona?.name || conv.personaName || 'Unknown'
+              const photo = persona?.image
+
+              return (
                 <button
                   key={conv.id}
-                  onClick={() => navigate(`/chat/${conv.id}`)}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-brand-surface transition-colors text-left"
+                  onClick={() => {
+                    if (persona) {
+                      const { usePersonaStore } = require('@store/index')
+                      usePersonaStore.getState().setActivePersona(persona)
+                    }
+                    navigate(`/chat/${conv.id}`)
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 text-left"
                 >
-                  <div className="w-8 h-8 rounded-full bg-brand-gradient flex items-center justify-center text-sm shrink-0">
-                    💬
+                  {/* Photo */}
+                  <div
+                    className="w-9 h-9 rounded-full overflow-hidden shrink-0"
+                    style={{ border: `1.5px solid ${persona?.accentColor || '#9B59B6'}50` }}
+                  >
+                    {photo ? (
+                      <img src={photo} alt={displayName} className="w-full h-full object-cover" />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center text-white text-xs font-bold"
+                        style={{ background: `linear-gradient(135deg, ${persona?.gradientFrom || '#9B59B6'}, ${persona?.gradientTo || '#E91E8C'})` }}
+                      >
+                        {displayName[0]}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-semibold">{conv.personaName}</div>
-                    <div className="text-brand-muted text-xs">{conv.messageCount} messages</div>
-                  </div>
-                  <div className="text-brand-muted text-xs shrink-0">{conv.date}</div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-brand-muted text-sm text-center py-2">No chats yet</p>
-          )}
-        </div>
 
-        <button
-          onClick={logout}
-          className="w-full py-3 rounded-xl border border-brand-border text-brand-muted font-bold hover:border-red-500/50 hover:text-red-400 transition-all"
-        >
-          Sign Out
-        </button>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white text-sm">{displayName}</div>
+                    <div className="text-brand-muted text-xs">{conv.messageCount} messages · {conv.date}</div>
+                  </div>
+
+                  <ChevronRight size={14} className="text-brand-muted shrink-0" />
+                </button>
+              )
+            })}
+          </div>
+        )}
+
       </div>
     </div>
   )
