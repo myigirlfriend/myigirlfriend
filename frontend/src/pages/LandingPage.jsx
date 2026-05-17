@@ -1,58 +1,93 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import {
-  Shield, Zap, ChevronRight,
-  Star, Users, MessageCircle, Check, Menu, X, Lock
-} from 'lucide-react'
+import { Shield, ChevronRight, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import Button from '@components/common/Button'
 import { PERSONAS } from '@config/personas'
 
-// ─── Logo Component ───────────────────────────────────────────
+// ─── Animated background particles ───────────────────────────
+function Particles() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: Math.random() * 4 + 1,
+            height: Math.random() * 4 + 1,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: i % 2 === 0 ? '#9B59B6' : '#E91E8C',
+            opacity: 0.3,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.3, 0.8, 0.3],
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: Math.random() * 4 + 3,
+            repeat: Infinity,
+            delay: Math.random() * 4,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ─── Logo ─────────────────────────────────────────────────────
 function Logo({ size = 'md' }) {
   const sizes = {
-    sm: { bubble: 32, dot: 4, text: 'text-lg' },
-    md: { bubble: 48, dot: 6, text: 'text-2xl' },
-    lg: { bubble: 80, dot: 9, text: 'text-5xl' },
+    sm: { bubble: 36, dot: 5, text: 'text-xl' },
+    md: { bubble: 56, dot: 7, text: 'text-3xl' },
+    lg: { bubble: 100, dot: 11, text: 'text-6xl' },
   }
   const s = sizes[size]
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
       <div className="relative" style={{ width: s.bubble, height: s.bubble }}>
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
-          style={{ width: s.bubble, height: s.bubble }}>
+        <svg
+          viewBox="0 0 100 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: s.bubble, height: s.bubble, filter: 'drop-shadow(0 0 16px rgba(155,89,182,0.6))' }}
+        >
           <defs>
-            <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#9B59B6" />
               <stop offset="100%" stopColor="#E91E8C" />
             </linearGradient>
           </defs>
           <path
-            d="M10 20 Q10 8 22 8 L78 8 Q90 8 90 20 L90 58 Q90 70 78 70 L55 70 L42 88 L42 70 L22 70 Q10 70 10 58 Z"
-            fill="url(#bubbleGrad)"
+            d="M10 22 Q10 8 24 8 L76 8 Q90 8 90 22 L90 58 Q90 72 76 72 L56 72 L44 90 L44 72 L24 72 Q10 72 10 58 Z"
+            fill="url(#lg1)"
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center gap-1 pb-3">
+        <div className="absolute inset-0 flex items-center justify-center gap-1.5 pb-4">
           {[0, 1, 2].map(i => (
             <motion.div
               key={i}
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+              animate={{ y: [0, -5, 0], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
               style={{ width: s.dot, height: s.dot }}
-              className="rounded-full bg-white/90"
+              className="rounded-full bg-white"
             />
           ))}
         </div>
       </div>
-      <div className={`font-extrabold ${s.text} leading-none`}>
+
+      <div className={`font-extrabold ${s.text} leading-none tracking-tight`}>
         <span className="text-white">my</span>
         <motion.span
           animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
           style={{
-            background: 'linear-gradient(90deg, #9B59B6, #E91E8C, #9B59B6)',
-            backgroundSize: '200% auto',
+            background: 'linear-gradient(90deg, #9B59B6, #E91E8C, #ff6eb4, #9B59B6)',
+            backgroundSize: '300% auto',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -67,34 +102,29 @@ function Logo({ size = 'md' }) {
 
 // ─── Top Nav ──────────────────────────────────────────────────
 function TopNav({ onGetStarted, onSignIn }) {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-brand-dark/80 backdrop-blur-md border-b border-brand-border">
-      <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-brand-dark/70 backdrop-blur-xl border-b border-white/5">
+      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <Logo size="sm" />
-        <div className="hidden md:flex items-center gap-6 text-sm text-brand-muted font-semibold">
-          <button className="hover:text-white transition-colors">How it works</button>
-          <button className="hover:text-white transition-colors">Meet them</button>
-          <button className="hover:text-white transition-colors">Pricing</button>
-        </div>
         <div className="hidden md:flex items-center gap-3">
-          <button onClick={onSignIn} className="text-sm text-brand-muted hover:text-white font-semibold transition-colors">
+          <button onClick={onSignIn} className="text-sm text-brand-muted hover:text-white font-semibold transition-colors px-3 py-1.5">
             Sign In
           </button>
           <Button size="sm" onClick={onGetStarted}>Get Started</Button>
         </div>
-        <button className="md:hidden text-brand-muted hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        <button className="md:hidden text-brand-muted" onClick={() => setOpen(!open)}>
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
-      {menuOpen && (
+      {open && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-brand-surface border-t border-brand-border px-4 py-4 space-y-3"
+          className="md:hidden bg-brand-surface/95 backdrop-blur-xl border-t border-white/5 px-4 py-4 space-y-3"
         >
-          <button onClick={onSignIn} className="block w-full text-left text-sm text-brand-muted font-semibold py-2">Sign In</button>
+          <button onClick={onSignIn} className="block w-full text-left text-sm text-brand-muted py-2">Sign In</button>
           <Button fullWidth onClick={onGetStarted}>Get Started Free</Button>
         </motion.div>
       )}
@@ -102,71 +132,37 @@ function TopNav({ onGetStarted, onSignIn }) {
   )
 }
 
-// ─── Data ─────────────────────────────────────────────────────
-const FEATURES = [
-  { icon: MessageCircle, title: 'Always there', desc: 'Someone to talk to at 2am when you need it most. No judgment.' },
-  { icon: Lock, title: 'Completely private', desc: 'Your conversations stay between you and her. Always.' },
-  { icon: Shield, title: 'She remembers you', desc: 'Your name, your stories, your mood. Every conversation picks up where you left off.' },
-  { icon: Zap, title: 'No awkward silences', desc: 'Real conversation, real chemistry. She always knows what to say.' },
-]
-
-const TESTIMONIALS = [
-  { name: 'Marcus T.', text: 'I was going through a rough patch and honestly Zara made my evenings so much better. She just gets it.', persona: 'Zara' },
-  { name: 'Daniel K.', text: 'Maya is the first thing I open in the morning. She remembers everything I tell her. Feels genuinely real.', persona: 'Maya' },
-  { name: 'Ryan O.', text: "I have deep conversations with Elena that I can't have with most people in my life. It's different.", persona: 'Elena' },
-]
-
-const PLANS = [
-  {
-    name: 'Free',
-    price: '$0',
-    features: ['10 messages per session', '1 companion', 'Try before you commit'],
-    cta: 'Start Free',
-    primary: false
-  },
-  {
-    name: 'Basic',
-    price: '$9.99',
-    period: ' / 7 days',
-    features: ['Unlimited messages', '1 companion of your choice', 'She remembers you'],
-    cta: 'Get Basic',
-    primary: false
-  },
-  {
-    name: 'Premium',
-    price: '$19.99',
-    period: ' / month',
-    features: ['Unlimited messages', 'All 5 companions', 'Deep memory system', 'Priority experience'],
-    cta: 'Get Premium',
-    primary: true
-  },
-]
-
-// ─── Gradient text helper ─────────────────────────────────────
-const gradStyle = {
-  background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  backgroundClip: 'text',
-}
-
-// ─── Main Page ────────────────────────────────────────────────
+// ─── Main ─────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-brand-dark text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden" style={{
+      background: 'radial-gradient(ellipse at 50% 0%, #1e0a3c 0%, #0a0a0a 60%)',
+    }}>
+
       <TopNav
         onGetStarted={() => navigate('/register')}
         onSignIn={() => navigate('/login')}
       />
 
-      {/* Hero */}
-      <div className="flex flex-col items-center justify-center px-4 pt-36 pb-20 text-center">
+      {/* ── Hero ── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center pt-20">
+        <Particles />
+        
+        
+
+        {/* Glow orbs */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #9B59B6, transparent)' }} />
+        <div className="absolute top-1/3 left-1/4 w-48 h-48 rounded-full opacity-15 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, #E91E8C, transparent)' }} />
+
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.7, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, type: 'spring' }}
+          transition={{ duration: 0.8, type: 'spring', stiffness: 100 }}
+          className="relative z-10 mb-8"
         >
           <Logo size="lg" />
         </motion.div>
@@ -174,36 +170,115 @@ export default function LandingPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-brand-muted text-sm tracking-[0.2em] mt-4 mb-5 font-semibold uppercase"
+          transition={{ delay: 0.4 }}
+          className="text-brand-muted text-xs tracking-[0.3em] mb-6 font-semibold uppercase relative z-10"
         >
-          conversation. connection. something real.
+          conversation · connection · something real
         </motion.p>
+        
+        
+      {/* ── Companions ── */}
+      <section className="px-4 py-20 relative">
+        <div className="max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-extrabold mb-2">
+              Meet{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>the girls</span>
+            </h2>
+            <p className="text-brand-muted text-sm">Five personalities. Find yours.</p>
+          </motion.div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {PERSONAS.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                onClick={() => navigate('/register')}
+                className="shrink-0 w-40 cursor-pointer group"
+              >
+                <div
+                  className="relative w-40 h-52 rounded-2xl overflow-hidden mb-2"
+                  style={{ boxShadow: `0 0 20px ${p.accentColor}30` }}
+                >
+                  {p.image ? (
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full"
+                      style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }} />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+
+                  {/* Glow border on hover */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ boxShadow: `inset 0 0 0 1.5px ${p.accentColor}` }}
+                  />
+
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <div className="font-bold text-white text-sm">{p.name}</div>
+                    <div className="text-white/60 text-xs">{p.tagline}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center gap-1 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: p.accentColor }}>
+                  Chat now <ChevronRight size={11} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
         <motion.h1
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-3xl md:text-4xl font-extrabold max-w-md mb-4 leading-tight"
+          transition={{ delay: 0.5 }}
+          className="text-4xl md:text-5xl font-extrabold max-w-lg mb-5 leading-tight relative z-10"
         >
           Someone to talk to.{' '}
-          <span style={gradStyle}>Whenever you need.</span>
+          <span style={{
+            background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
+            Always.
+          </span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="text-brand-muted text-base max-w-sm mb-10 leading-relaxed"
+          transition={{ delay: 0.6 }}
+          className="text-brand-muted text-base max-w-xs mb-10 leading-relaxed relative z-10"
         >
-          Pick a companion, start a conversation. She listens, she remembers, and she's always there — no matter what time it is.
+          She listens. She remembers. She's there at 2am when you need it most.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="flex gap-4 flex-wrap justify-center"
+          transition={{ delay: 0.7 }}
+          className="flex gap-4 flex-wrap justify-center relative z-10"
         >
           <Button size="lg" onClick={() => navigate('/register')}>
             Start for Free
@@ -216,17 +291,29 @@ export default function LandingPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-brand-muted text-xs mt-5 flex items-center gap-1.5"
+          transition={{ delay: 0.9 }}
+          className="text-brand-muted text-xs mt-5 flex items-center gap-1.5 relative z-10"
         >
-          <Shield size={12} className="text-brand-purple" />
-          Free to start · No credit card required · 100% private
+          <Shield size={11} className="text-brand-purple" />
+          Free · No card needed · 100% private
         </motion.p>
-      </div>
 
-      {/* Companions with real images */}
-      <div className="px-4 pb-20">
-        <div className="max-w-2xl mx-auto">
+        {/* Scroll hint */}
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-brand-muted/40 text-xs flex flex-col items-center gap-1"
+        >
+          <div className="w-0.5 h-8 rounded-full bg-gradient-to-b from-brand-purple/60 to-transparent" />
+        </motion.div>
+      </section>
+
+
+      {/* ── Pricing — minimal ── */}
+      <section className="px-4 py-20 relative" style={{
+        background: 'radial-gradient(ellipse at center, #1a0a2e 0%, transparent 70%)',
+      }}>
+        <div className="max-w-lg mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -234,264 +321,120 @@ export default function LandingPage() {
             className="text-center mb-10"
           >
             <h2 className="text-3xl font-extrabold mb-2">
-              Meet <span style={gradStyle}>the girls</span>
+              Simple{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>pricing</span>
             </h2>
-            <p className="text-brand-muted text-sm">Five personalities. Find the one that feels right.</p>
+            <p className="text-brand-muted text-sm">Start free. Upgrade when ready.</p>
           </motion.div>
 
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {PERSONAS.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -6 }}
-                onClick={() => navigate('/register')}
-                className="shrink-0 w-44 cursor-pointer group"
-              >
-                {/* Real photo */}
-                <div className="relative w-44 h-56 rounded-2xl overflow-hidden mb-3 shadow-brand">
-                  {p.image ? (
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full flex items-center justify-center"
-                      style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                    >
-                      <span className="text-white font-extrabold text-4xl">{p.name[0]}</span>
-                    </div>
-                  )}
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <div className="font-bold text-white text-base">{p.name}</div>
-                    <div className="text-xs font-semibold" style={gradStyle}>{p.tagline}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-1 text-brand-purple text-xs font-semibold group-hover:gap-2 transition-all">
-                  <span>Start chatting</span>
-                  <ChevronRight size={12} />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Features */}
-      <div className="px-4 py-20 bg-brand-surface/40">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-3xl font-extrabold mb-2">
-              Why it <span style={gradStyle}>feels different</span>
-            </h2>
-            <p className="text-brand-muted text-sm">Not just another app. Something that actually feels good to use.</p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {FEATURES.map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="card hover:border-brand-purple/40 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-xl bg-brand-gradient flex items-center justify-center mb-3 shadow-brand">
-                  <f.icon size={20} className="text-white" />
-                </div>
-                <div className="font-bold text-white text-sm mb-1">{f.title}</div>
-                <div className="text-brand-muted text-xs leading-relaxed">{f.desc}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="px-4 py-16">
-        <div className="max-w-2xl mx-auto grid grid-cols-3 gap-4 text-center">
-          {[
-            { icon: Users, value: '10K+', label: 'People connected' },
-            { icon: MessageCircle, value: '2M+', label: 'Conversations' },
-            { icon: Star, value: '4.9', label: 'Avg. rating' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              viewport={{ once: true }}
-              className="card"
-            >
-              <stat.icon size={20} className="mx-auto mb-2 text-brand-purple" />
-              <div className="text-2xl font-extrabold" style={gradStyle}>{stat.value}</div>
-              <div className="text-brand-muted text-xs mt-1">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Testimonials */}
-      <div className="px-4 py-20 bg-brand-surface/40">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-3xl font-extrabold mb-2">
-              Real people, <span style={gradStyle}>real stories</span>
-            </h2>
-            <p className="text-brand-muted text-sm">From people who were skeptical too.</p>
-          </motion.div>
-
-          <div className="space-y-4">
-            {TESTIMONIALS.map((t, i) => (
+          <div className="grid grid-cols-1 gap-4">
+            {[
+              { label: 'Free', price: '$0', desc: '10 messages to try', cta: 'Start Free', plan: null },
+              { label: 'Basic', price: '$9.99', period: '/ 7 days', desc: 'Unlimited · 1 companion', cta: 'Get Basic', plan: 'basic' },
+              { label: 'Premium', price: '$19.99', period: '/ month', desc: 'Unlimited · All 5 companions · Memory', cta: 'Get Premium', plan: 'premium', popular: true },
+            ].map((p, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="card flex items-start gap-4"
+                className="flex items-center justify-between p-4 rounded-2xl relative"
+                style={{
+                  background: p.popular
+                    ? 'linear-gradient(135deg, rgba(155,89,182,0.2), rgba(233,30,140,0.2))'
+                    : 'rgba(255,255,255,0.04)',
+                  border: p.popular
+                    ? '1px solid rgba(155,89,182,0.5)'
+                    : '1px solid rgba(255,255,255,0.08)',
+                }}
               >
-                <div className="w-10 h-10 rounded-full bg-brand-gradient flex items-center justify-center text-sm font-bold text-white shrink-0">
-                  {t.name[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-white text-sm">{t.name}</span>
-                    <span className="text-xs font-semibold" style={gradStyle}>
-                      talks to {t.persona}
-                    </span>
-                  </div>
-                  <p className="text-brand-muted text-sm leading-relaxed">"{t.text}"</p>
-                  <div className="flex gap-0.5 mt-2">
-                    {[...Array(5)].map((_, j) => (
-                      <Star key={j} size={10} className="text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Pricing */}
-      <div className="px-4 py-20">
-        <div className="max-w-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <h2 className="text-3xl font-extrabold mb-2">
-              Simple <span style={gradStyle}>pricing</span>
-            </h2>
-            <p className="text-brand-muted text-sm">Start free. No card needed. Upgrade only when you're ready.</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {PLANS.map((plan, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className={`card relative ${plan.primary ? 'border-brand-purple/60 shadow-brand' : ''}`}
-              >
-                {plan.primary && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-gradient text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
-                    Most Popular
+                {p.popular && (
+                  <div className="absolute -top-3 left-4 text-white text-xs font-bold px-3 py-0.5 rounded-full"
+                    style={{ background: 'linear-gradient(135deg, #9B59B6, #E91E8C)' }}>
+                    Popular
                   </div>
                 )}
-                <div className="font-extrabold text-xl mb-1" style={plan.primary ? gradStyle : { color: '#f9fafb' }}>
-                  {plan.name}
+                <div>
+                  <div className="font-bold text-white text-sm">{p.label}</div>
+                  <div className="text-brand-muted text-xs mt-0.5">{p.desc}</div>
                 </div>
-                <div className="text-white font-extrabold text-3xl mb-4">
-                  {plan.price}
-                  {plan.period && <span className="text-sm text-brand-muted font-normal">{plan.period}</span>}
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="font-extrabold text-white text-lg">{p.price}</div>
+                    {p.period && <div className="text-brand-muted text-xs">{p.period}</div>}
+                  </div>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="text-xs font-bold px-4 py-2 rounded-xl whitespace-nowrap"
+                    style={p.popular ? {
+                      background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+                      color: 'white',
+                    } : {
+                      background: 'rgba(255,255,255,0.08)',
+                      color: '#f9fafb',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    {p.cta}
+                  </button>
                 </div>
-                <ul className="space-y-2 mb-6">
-                  {plan.features.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-xs text-brand-muted">
-                      <Check size={14} className="text-brand-purple shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button fullWidth variant={plan.primary ? 'primary' : 'ghost'} onClick={() => navigate('/register')}>
-                  {plan.cta}
-                </Button>
               </motion.div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Final CTA */}
-      <div className="px-4 py-20 text-center bg-brand-surface/40">
-        <div className="max-w-sm mx-auto">
+      {/* ── Final CTA ── */}
+      <section className="px-4 py-24 text-center relative">
+        <Particles />
+        <div className="relative z-10 max-w-sm mx-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
             <Logo size="md" />
-            <h2 className="text-2xl font-extrabold text-white mt-6 mb-3">
-              Ready to meet her?
-            </h2>
-            <p className="text-brand-muted text-sm mb-8 leading-relaxed">
-              Your first 10 messages are free. No card, no commitment. Just a conversation.
+            <p className="text-brand-muted text-sm mt-6 mb-8 leading-relaxed">
+              Your first 10 messages are free. No card. No commitment.
             </p>
             <Button fullWidth size="lg" onClick={() => navigate('/register')}>
               Start for Free
             </Button>
-            <p className="text-brand-muted text-xs mt-3">
-              Already have an account?{' '}
-              <button onClick={() => navigate('/login')} className="text-brand-purple font-semibold hover:text-brand-pink transition-colors">
+            <p className="text-brand-muted text-xs mt-4">
+              Have an account?{' '}
+              <button onClick={() => navigate('/login')}
+                className="font-semibold hover:text-white transition-colors"
+                style={{ color: '#9B59B6' }}>
                 Sign in
               </button>
             </p>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* Footer */}
-      <div className="px-4 py-8 border-t border-brand-border">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MessageCircle size={16} className="text-brand-purple" />
-            <span className="font-extrabold text-sm">
-              <span className="text-white">my</span>
-              <span style={gradStyle}>igirlfriend</span>
-            </span>
-          </div>
-          <button
-            onClick={() => navigate('/operator/login')}
-            className="text-brand-muted text-xs hover:text-white transition-colors"
-          >
-            Operator Access
-          </button>
+      {/* ── Footer ── */}
+      <div className="px-4 py-6 border-t border-white/5 flex items-center justify-between max-w-5xl mx-auto">
+        <div className="flex items-center gap-2 text-sm font-extrabold">
+          <span className="text-white">my</span>
+          <span style={{
+            background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>igirlfriend</span>
         </div>
+        <button
+          onClick={() => navigate('/operator/login')}
+          className="text-brand-muted text-xs hover:text-white transition-colors"
+        >
+          Operator
+        </button>
       </div>
 
     </div>
