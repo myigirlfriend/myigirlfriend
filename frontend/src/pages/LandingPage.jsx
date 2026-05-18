@@ -105,7 +105,7 @@ function TopNav({ onGetStarted, onSignIn }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-brand-dark/70 backdrop-blur-xl border-b border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50  backdrop-blur-x border-b border-white/5">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <Logo size="sm" />
         <div className="hidden md:flex items-center gap-3">
@@ -419,23 +419,28 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <div className="px-4 py-6 border-t border-white/5 flex items-center justify-between max-w-5xl mx-auto">
-        <div className="flex items-center gap-2 text-sm font-extrabold">
-          <span className="text-white">my</span>
-          <span style={{
-            background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>igirlfriend</span>
-        </div>
-        <button
-          onClick={() => navigate('/operator/login')}
-          className="text-brand-muted text-xs hover:text-white transition-colors"
-        >
-          Operator
-        </button>
-      </div>
+{/* Footer */}
+<div className="px-4 py-6 border-t border-white/5 flex items-center justify-between max-w-5xl mx-auto">
+  <div className="flex items-center gap-2 text-sm font-extrabold">
+    <span className="text-white">my</span>
+    <span style={{
+      background: 'linear-gradient(135deg, #9B59B6, #E91E8C)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+    }}>igirlfriend</span>
+  </div>
+  <div className="flex items-center gap-4">
+    <a href="/terms" className="text-brand-muted text-xs hover:text-white transition-colors">Terms</a>
+    <a href="/privacy" className="text-brand-muted text-xs hover:text-white transition-colors">Privacy</a>
+    <button
+      onClick={() => navigate('/operator/login')}
+      className="text-brand-muted text-xs hover:text-white transition-colors"
+    >
+      Operator
+    </button>
+  </div>
+</div>
 
     </div>
   )

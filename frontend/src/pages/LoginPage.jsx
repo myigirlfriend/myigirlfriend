@@ -29,10 +29,20 @@ export default function LoginPage() {
           <input className="input-field" type="password" placeholder="Password"
             value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} required />
           <Button type="submit" fullWidth loading={loading}>Sign In</Button>
+          
         </form>
+                  <div className="text-right">
+  
+   <a href="/forgot-password"
+    className="text-xs text-brand-muted hover:text-white transition-colors"
+  >
+    Forgot password?
+  </a>
+</div>
 
         <p className="text-center text-brand-muted text-sm mt-6">
           No account? <Link to="/register" className="gradient-text font-semibold">Sign up</Link>
+
         </p>
       </div>
     </div>

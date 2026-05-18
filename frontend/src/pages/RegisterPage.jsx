@@ -36,6 +36,17 @@ export default function RegisterPage() {
         <p className="text-center text-brand-muted text-sm mt-6">
           Have an account? <Link to="/login" className="gradient-text font-semibold">Sign in</Link>
         </p>
+        <p className="text-center text-brand-muted text-xs mt-3 leading-relaxed">
+  By creating an account you agree to our{' '}
+  <a href="/terms" className="gradient-text font-semibold hover:opacity-80">
+    Terms of Service
+  </a>
+  {' '}and{' '}
+  <a href="/privacy" className="gradient-text font-semibold hover:opacity-80">
+    Privacy Policy
+  </a>
+        </p>
+        
       </div>
     </div>
   )

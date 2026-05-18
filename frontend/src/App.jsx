@@ -14,6 +14,11 @@ import OperatorDashboardPage from '@pages/operator/OperatorDashboardPage'
 import Navbar from '@components/common/Navbar'
 import AdminHoursPage from '@pages/operator/AdminHoursPage'
 import ChatListPage from '@pages/ChatListPage'
+import NotFoundPage from '@pages/NotFoundPage'
+import TermsPage from '@pages/TermsPage'
+import PrivacyPage from '@pages/PrivacyPage'
+import ForgotPasswordPage from '@pages/ForgotPasswordPage'
+import ResetPasswordPage from '@pages/ResetPasswordPage'
 
 // Route guards
 function PrivateRoute({ children }) {
@@ -51,10 +56,15 @@ export default function App() {
         <Route path="/operator/login" element={<OperatorLoginPage />} />
         <Route path="/operator/dashboard" element={<OperatorRoute><OperatorDashboardPage /></OperatorRoute>} />
         <Route path="/operator/hours" element={<OperatorRoute><AdminHoursPage /></OperatorRoute>} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        <Route path="*" element={<NotFoundPage />} />      </Routes>
+      
       <Navbar />
     </>
   )
