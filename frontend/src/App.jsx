@@ -19,6 +19,7 @@ import TermsPage from '@pages/TermsPage'
 import PrivacyPage from '@pages/PrivacyPage'
 import ForgotPasswordPage from '@pages/ForgotPasswordPage'
 import ResetPasswordPage from '@pages/ResetPasswordPage'
+import AuthCallbackPage from '@pages/AuthCallbackPage'
 
 // Route guards
 function PrivateRoute({ children }) {
@@ -60,6 +61,7 @@ export default function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         
 
         {/* Fallback */}
