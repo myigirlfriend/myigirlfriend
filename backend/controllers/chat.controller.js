@@ -2,7 +2,7 @@ const supabase = require('../config/supabase')
 const { generateReply } = require('../services/ai.service')
 const { ok, err } = require('../utils/response')
 
-const FREE_LIMIT = 10
+const FREE_LIMIT = 5
 
 // Start or resume a conversation with a persona
 const startChat = async (req, res) => {
