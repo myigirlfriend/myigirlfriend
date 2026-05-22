@@ -69,6 +69,6 @@ export const PERSONAS = [
 
 export const getPersonaById = (id) => PERSONAS.find((p) => p.id === id) ?? null
 
-export const FREE_MESSAGE_LIMIT = 10
+export const FREE_MESSAGE_LIMIT = 5
 export const FREE_SESSION_MINUTES = 10
 export const FREE_SESSION_MS = FREE_SESSION_MINUTES * 60 * 1000

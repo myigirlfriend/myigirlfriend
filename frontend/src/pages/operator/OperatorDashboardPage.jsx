@@ -198,7 +198,11 @@ export default function OperatorDashboardPage() {
         <div className="flex-1 overflow-y-auto p-2 space-y-2">
           <div className="flex items-center justify-between px-2 mb-1">
             <div className="text-xs text-brand-muted">
-              {isAdmin ? `All Chats (${queue.length})` : `My Queue (${queue.length})`}
+            {isAdmin
+  ? `All Chats (${queue.length}) · ${queue.filter(c => !c.assignedTo).length} unassigned`
+  : `My Queue (${queue.length})`
+              }
+              
             </div>
             {/* Live indicator */}
             <div className="flex items-center gap-1">

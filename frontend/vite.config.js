@@ -24,5 +24,8 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    allowedHosts: [
+      'afternoon-estranged-extenuate.ngrok-free.dev'
+    ]
   },
 })
