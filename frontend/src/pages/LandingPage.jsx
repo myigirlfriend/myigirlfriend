@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, ChevronRight, Menu, X, Check, Mail } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Shield, ChevronRight, Check, Mail, Bell } from 'lucide-react'
 import { useState } from 'react'
-import Button from '@components/common/Button'
 import { PERSONAS } from '@config/personas'
 
 // ─── Social icons ─────────────────────────────────────────────
@@ -140,33 +138,17 @@ function NavLogo() {
 }
 
 // ─── Top Nav ──────────────────────────────────────────────────
-function TopNav({ onGetStarted, onSignIn }) {
-  const [open, setOpen] = useState(false)
-
+function TopNav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-brand-dark/70 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <NavLogo />
-        <div className="hidden md:flex items-center gap-3">
-          <button onClick={onSignIn} className="text-sm text-brand-muted hover:text-white font-semibold transition-colors px-3 py-1.5">
-            Sign In
-          </button>
-          <Button size="sm" onClick={onGetStarted}>Get Started Free</Button>
+        <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border border-brand-purple/40"
+          style={{ background: 'rgba(155,89,182,0.1)', color: '#9B59B6' }}>
+          <Bell size={11} />
+          Coming Soon
         </div>
-        <button className="md:hidden text-brand-muted" onClick={() => setOpen(!open)}>
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </div>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-brand-surface/95 backdrop-blur-xl border-t border-white/5 px-4 py-4 space-y-3"
-        >
-          <button onClick={onSignIn} className="block w-full text-left text-sm text-brand-muted py-2">Sign In</button>
-          <Button fullWidth onClick={onGetStarted}>Get Started Free</Button>
-        </motion.div>
-      )}
     </nav>
   )
 }
@@ -212,18 +194,62 @@ const gradStyle = {
   backgroundClip: 'text',
 }
 
+// ─── Email capture ────────────────────────────────────────────
+function EmailCapture() {
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (email) setSubmitted(true)
+  }
+
+  if (submitted) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-xl"
+        style={{ background: 'rgba(155,89,182,0.15)', border: '1px solid rgba(155,89,182,0.4)', color: '#c084fc' }}
+      >
+        <div className="w-5 h-5 rounded-full flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #9B59B6, #E91E8C)' }}>
+          <Check size={11} className="text-white" />
+        </div>
+        You're on the list! We'll notify you.
+      </motion.div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-sm">
+      <input
+        type="email"
+        required
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        className="flex-1 px-4 py-3 rounded-xl text-sm text-white placeholder-brand-muted outline-none"
+        style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+      />
+      <button
+        type="submit"
+        className="px-5 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+        style={{ background: 'linear-gradient(135deg, #9B59B6, #E91E8C)', whiteSpace: 'nowrap' }}
+      >
+        Notify Me
+      </button>
+    </form>
+  )
+}
+
 // ─── Main ─────────────────────────────────────────────────────
 export default function LandingPage() {
-  const navigate = useNavigate()
-
   return (
     <div className="min-h-screen text-white overflow-x-hidden" style={{
       background: 'radial-gradient(ellipse at 50% 0%, #1e0a3c 0%, #0a0a0a 60%)',
     }}>
-      <TopNav
-        onGetStarted={() => navigate('/register')}
-        onSignIn={() => navigate('/login')}
-      />
+      <TopNav />
 
       {/* ── Hero ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center pt-20">
@@ -267,7 +293,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="text-brand-muted text-base max-w-xs mb-10 leading-relaxed relative z-10"
+          className="text-brand-muted text-base max-w-xs mb-6 leading-relaxed relative z-10"
         >
           meet your real companion and chat with her when ever you need.
         </motion.p>
@@ -275,15 +301,22 @@ export default function LandingPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="flex gap-4 flex-wrap justify-center relative z-10"
+          transition={{ delay: 0.65 }}
+          className="mb-6 relative z-10"
         >
-          <Button size="lg" onClick={() => navigate('/register')}>
-            Start for Free
-          </Button>
-          <Button size="lg" variant="ghost" onClick={() => navigate('/login')}>
-            Sign In
-          </Button>
+          <span className="text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full"
+            style={{ background: 'linear-gradient(135deg, rgba(155,89,182,0.2), rgba(233,30,140,0.2))', border: '1px solid rgba(155,89,182,0.5)', color: '#c084fc' }}>
+            🚀 Launching Soon
+          </span>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="flex justify-center relative z-10 w-full px-4"
+        >
+          <EmailCapture />
         </motion.div>
 
         <motion.p
@@ -329,8 +362,7 @@ export default function LandingPage() {
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
                 whileHover={{ y: -8, scale: 1.02 }}
-                onClick={() => navigate('/register')}
-                className="shrink-0 w-40 cursor-pointer group"
+                className="shrink-0 w-40 group"
               >
                 <div className="relative w-40 h-52 rounded-2xl overflow-hidden mb-2"
                   style={{ boxShadow: `0 0 20px ${p.accentColor}30` }}>
@@ -482,20 +514,10 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <LogoBubble size="md" />
-            <p className="text-brand-muted text-sm mt-6 mb-8 leading-relaxed">
-              Your first 5 messages are free. No card. No commitment. Just a conversation.
+            <p className="text-brand-muted text-sm mt-6 mb-6 leading-relaxed">
+              We're putting the finishing touches on something special. Be the first to know when we launch.
             </p>
-            <Button fullWidth size="lg" onClick={() => navigate('/register')}>
-              Start for Free
-            </Button>
-            <p className="text-brand-muted text-xs mt-4">
-              Have an account?{' '}
-              <button onClick={() => navigate('/login')}
-                className="font-semibold hover:text-white transition-colors"
-                style={{ color: '#9B59B6' }}>
-                Sign in
-              </button>
-            </p>
+            <EmailCapture />
           </motion.div>
         </div>
       </section>
@@ -533,9 +555,8 @@ export default function LandingPage() {
               <div className="text-white font-bold text-sm mb-4">Platform</div>
               <div className="space-y-2">
                 {[
-                  { label: 'Get Started', href: '/register' },
-                  { label: 'Sign In', href: '/login' },
-                  { label: 'Pricing', href: '/subscription' },
+                  { label: 'Terms', href: '/terms' },
+                  { label: 'Privacy', href: '/privacy' },
                   { label: 'Operator Access', href: '/operator/login' },
                 ].map(link => (
                   <a key={link.label} href={link.href}
