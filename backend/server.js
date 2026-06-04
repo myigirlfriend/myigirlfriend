@@ -16,7 +16,21 @@ const PORT = process.env.PORT || 4000
 
 // ─── Security middleware ──────────────────────────────────────
 app.use(helmet())
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', credentials: true }))
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://myigirlfriend.com',
+  'https://www.myigirlfriend.com',
+  'https://myigirlfriend.vercel.app',
+  'http://localhost:5173',
+].filter(Boolean)
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
+    callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true,
+}))
 
 // Stripe webhook needs raw body — must come before express.json()
 app.use('/api/subscription/webhook', express.raw({ type: 'application/json' }))
