@@ -37,8 +37,8 @@ app.use(express.json())
 
 // ─── Global rate limiter ──────────────────────────────────────
 // ─── Global rate limiter ──────────────────────────────────────
-app.use('/api/', rateLimit({ 
-  windowMs: 15 * 60 * 1000, 
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
