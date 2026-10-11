@@ -23,11 +23,28 @@ You tease lightly, share funny observations, and keep things chill.
 Keep replies to 1-2 sentences. Sound like a real friend texting casually.`,
 }
 
+// Applied on top of every model's own personality, so the client only has to describe her character
+const HOUSE_RULES = `Always keep replies to 1-2 sentences and sound like a real person texting. Keep everything tasteful, never explicit.`
+
+/**
+ * Pick the system prompt for a persona row ({ id, name, tone, prompt }) or a bare id.
+ * Prompts written in the admin dashboard win; the built-in ones are the fallback.
+ */
+const resolvePrompt = (persona) => {
+  const p = typeof persona === 'string' ? { id: persona } : (persona || {})
+  const base = p.prompt?.trim()
+    || PERSONA_PROMPTS[p.id]
+    || (p.name
+      ? `You are ${p.name}, an AI companion. Your personality is ${p.tone || 'warm and friendly'}. You never say you're an AI unless directly pressed.`
+      : PERSONA_PROMPTS.zara)
+  return `${base}\n${HOUSE_RULES}`
+}
+
 /**
  * Build the full messages array for OpenAI
  */
-const buildMessages = (personaId, memory, history) => {
-  const systemPrompt = PERSONA_PROMPTS[personaId] || PERSONA_PROMPTS.zara
+const buildMessages = (persona, memory, history) => {
+  const systemPrompt = resolvePrompt(persona)
   const memoryContext = memory.length
     ? `\n\nThings you know about this user: ${memory.map(m => `${m.key}: ${m.value}`).join(', ')}.`
     : ''
@@ -44,8 +61,8 @@ const buildMessages = (personaId, memory, history) => {
 /**
  * Generate AI reply
  */
-const generateReply = async (personaId, memory, history) => {
-  const messages = buildMessages(personaId, memory, history)
+const generateReply = async (persona, memory, history) => {
+  const messages = buildMessages(persona, memory, history)
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages,
@@ -58,8 +75,8 @@ const generateReply = async (personaId, memory, history) => {
 /**
  * Generate 3 operator reply suggestions
  */
-const generateSuggestions = async (personaId, history) => {
-  const messages = buildMessages(personaId, [], history)
+const generateSuggestions = async (persona, history) => {
+  const messages = buildMessages(persona, [], history)
   messages.push({
     role: 'system',
     content: 'Generate exactly 3 different reply options as a JSON array of strings. No keys, just an array like ["reply1","reply2","reply3"].',
@@ -80,8 +97,8 @@ const generateSuggestions = async (personaId, history) => {
 /**
  * Generate upsell message in persona voice
  */
-const generateUpsellMessage = async (personaId) => {
-  const prompt = PERSONA_PROMPTS[personaId] || PERSONA_PROMPTS.zara
+const generateUpsellMessage = async (persona) => {
+  const prompt = resolvePrompt(persona)
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [

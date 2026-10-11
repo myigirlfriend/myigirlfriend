@@ -67,7 +67,36 @@ export const PERSONAS = [
   },
 ]
 
-export const getPersonaById = (id) => PERSONAS.find((p) => p.id === id) ?? null
+const DEFAULT_GRADIENT = ['#9B59B6', '#E91E8C']
+
+// Models added or edited in the admin dashboard arrive from the API.
+// The built-in entries above fill in anything a row does not set (e.g. bundled photos).
+export const resolvePersona = (row) => {
+  const base = PERSONAS.find((p) => p.id === row.id) ?? {}
+  const gradientFrom = row.gradient_from ?? row.gradientFrom ?? base.gradientFrom ?? DEFAULT_GRADIENT[0]
+  const gradientTo = row.gradient_to ?? row.gradientTo ?? base.gradientTo ?? DEFAULT_GRADIENT[1]
+  return {
+    id: row.id,
+    name: row.name || base.name,
+    tagline: row.tagline || base.tagline || '',
+    description: row.description || base.description || '',
+    tone: row.tone || base.tone || '',
+    image: row.image_url || row.imageUrl || base.image || null,
+    gradientFrom,
+    gradientTo,
+    accentColor: gradientTo,
+    previewMessage: row.preview_message || row.previewMessage || base.previewMessage || '',
+  }
+}
+
+let livePersonas = PERSONAS
+export const setLivePersonas = (rows) => {
+  livePersonas = rows.map(resolvePersona)
+  return livePersonas
+}
+
+export const getPersonaById = (id) =>
+  livePersonas.find((p) => p.id === id) ?? PERSONAS.find((p) => p.id === id) ?? null
 
 export const FREE_MESSAGE_LIMIT = 5
 export const FREE_SESSION_MINUTES = 10

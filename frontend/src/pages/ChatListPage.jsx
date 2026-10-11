@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Plus, MessageCircle } from 'lucide-react'
 import { usePersonaStore } from '@store/index'
 import { getPersonaById } from '@config/personas'
+import { usePersona } from '@hooks/usePersona'
 import api from '@services/api'
 
 // Simple time formatter
@@ -23,6 +24,7 @@ const timeAgo = (dateStr) => {
 export default function ChatListPage() {
   const navigate = useNavigate()
   const { setActivePersona } = usePersonaStore()
+  usePersona() // loads models added in the admin dashboard
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
 

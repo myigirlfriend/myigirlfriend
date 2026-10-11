@@ -19,7 +19,16 @@ create table if not exists personas (
   name text not null,
   tone text,
   tagline text,
-  created_at timestamptz default now()
+  description text,
+  prompt text,                 -- personality instructions the AI follows
+  preview_message text,        -- first message shown on her card
+  image_url text,              -- photo in the 'personas' storage bucket
+  gradient_from text,
+  gradient_to text,
+  is_active boolean not null default true,
+  sort_order int not null default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- Conversations
@@ -28,6 +37,7 @@ create table if not exists conversations (
   user_id uuid references users(id) on delete cascade,
   persona_id text references personas(id),
   status text default 'active',
+  assigned_to uuid,            -- operator handling this chat
   created_at timestamptz default now()
 );
 

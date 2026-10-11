@@ -1,163 +1,107 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import api from '@services/api'
 import { useAuthStore } from '@store/index'
-import Spinner from '@components/common/Spinner'
+import { formatDuration, formatTime } from '@utils/formatTime'
+
+const todayISO = () => new Date().toISOString().split('T')[0]
+
+const sessionMinutes = (s) =>
+  Math.floor(((s.clock_out ? new Date(s.clock_out) : new Date()) - new Date(s.clock_in)) / 60000)
 
 export default function AdminHoursPage() {
   const operator = useAuthStore(s => s.operator)
-  const navigate = useNavigate()
-  const [agents, setAgents] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
-  )
+  const [agents, setAgents] = useState(null)
+  const [failed, setFailed] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(todayISO())
 
-  // Only admin can access this page
-  useEffect(() => {
-    if (operator?.role !== 'admin') navigate('/operator/dashboard')
-  }, [operator])
-
-  useEffect(() => {
-    fetchHours()
-  }, [selectedDate])
-
-  const fetchHours = async () => {
-    setLoading(true)
-    try {
-      const data = await api.get(`/api/operator/admin/hours?date=${selectedDate}`)
-      setAgents(data.agents)
-    } catch {} finally { setLoading(false) }
+  const load = () => {
+    setAgents(null)
+    setFailed(false)
+    api.get(`/api/operator/admin/hours?date=${selectedDate}`)
+      .then(data => setAgents(data.agents))
+      .catch(() => setFailed(true))
   }
+  useEffect(load, [selectedDate])
 
-  const formatMinutes = (minutes) => {
-    if (!minutes) return '0h 0m'
-    const h = Math.floor(minutes / 60)
-    const m = minutes % 60
-    return `${h}h ${m}m`
-  }
+  if (operator?.role !== 'admin') return <Navigate to="/operator/chats" replace />
 
-  const totalMinutes = agents.reduce((sum, a) => sum + (a.totalMinutes || 0), 0)
+  const totalMinutes = (agents || []).reduce((sum, a) => sum + (a.totalMinutes || 0), 0)
 
   return (
-    <div className="min-h-screen bg-brand-dark px-4 py-10">
-      <div className="max-w-3xl mx-auto">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
+      <div className="max-w-3xl">
+      <h1 className="text-2xl font-extrabold text-white">Agent hours</h1>
+      <p className="mt-1 text-sm text-zinc-400">Time each agent was clocked in on the day you choose.</p>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-extrabold gradient-text">Agent Hours</h1>
-            <p className="text-brand-muted text-sm mt-1">
-              Track all agent login sessions
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/operator/dashboard')}
-            className="text-brand-muted hover:text-white text-sm transition-colors"
-          >
-            ‹ Back to Dashboard
-          </button>
-        </div>
-
-        {/* Date picker */}
-        <div className="card mb-6 flex items-center gap-4">
-          <label className="text-brand-muted text-sm font-semibold shrink-0">
-            Select Date
-          </label>
+      <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <label htmlFor="hours-date" className="admin-label">Day</label>
           <input
+            id="hours-date"
             type="date"
             value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            className="input-field flex-1"
-            max={new Date().toISOString().split('T')[0]}
+            max={todayISO()}
+            onChange={e => e.target.value && setSelectedDate(e.target.value)}
+            className="admin-input w-auto [color-scheme:dark]"
           />
-          <div className="text-right shrink-0">
-            <div className="gradient-text font-extrabold text-lg">
-              {formatMinutes(totalMinutes)}
-            </div>
-            <div className="text-brand-muted text-xs">Total all agents</div>
-          </div>
         </div>
+        <div className="text-right">
+          <div className="text-sm text-zinc-400">All agents</div>
+          <div className="text-2xl font-extrabold text-white tabular-nums">{formatDuration(totalMinutes)}</div>
+        </div>
+      </div>
 
-        {/* Agents table */}
-        {loading ? (
-          <div className="flex justify-center py-20"><Spinner size="lg" /></div>
-        ) : (
-          <div className="space-y-3">
-            {agents.map(agent => (
-              <div key={agent.id} className="card">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <div className="font-bold text-white">{agent.name}</div>
-                    <div className="text-brand-muted text-xs">{agent.email}</div>
+      {failed ? (
+        <div className="mt-6 rounded-2xl border border-brand-border p-6">
+          <p className="font-bold text-white">The hours could not be loaded.</p>
+          <button onClick={load} className="admin-btn mt-4">Try again</button>
+        </div>
+      ) : !agents ? (
+        <div className="mt-6 space-y-2" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="admin-skeleton h-16" />)}
+        </div>
+      ) : agents.length === 0 ? (
+        <p className="mt-6 rounded-2xl border border-dashed border-brand-border px-5 py-8 text-sm text-zinc-400">
+          There are no agents yet.
+        </p>
+      ) : (
+        <ul className="mt-6 divide-y divide-brand-border rounded-2xl border border-brand-border">
+          {agents.map(agent => (
+            <li key={agent.id} className="px-4 py-4 sm:px-5">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold text-white">
+                    {agent.name}
+                    {agent.role === 'admin' && <span className="ml-2 font-normal text-zinc-400">admin</span>}
                   </div>
-                  <div className="text-right">
-                    <div className={`font-extrabold text-lg ${
-                      agent.totalMinutes > 0 ? 'gradient-text' : 'text-brand-muted'
-                    }`}>
-                      {formatMinutes(agent.totalMinutes)}
-                    </div>
-                    <div className="text-brand-muted text-xs">
-                      {agent.sessions?.length || 0} session(s)
-                    </div>
-                  </div>
+                  <div className="truncate text-xs text-zinc-400">{agent.email}</div>
                 </div>
-
-                {/* Session breakdown */}
-                {agent.sessions?.length > 0 && (
-                  <div className="space-y-1.5 border-t border-brand-border pt-3">
-                    {agent.sessions.map((s, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between text-xs text-brand-muted bg-brand-surface rounded-lg px-3 py-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-purple" />
-                          <span>
-                            Clock in: <span className="text-white font-semibold">
-                              {new Date(s.clock_in).toLocaleTimeString([], {
-                                hour: '2-digit', minute: '2-digit'
-                              })}
-                            </span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {s.clock_out ? (
-                            <>
-                              <span>
-                                Clock out: <span className="text-white font-semibold">
-                                  {new Date(s.clock_out).toLocaleTimeString([], {
-                                    hour: '2-digit', minute: '2-digit'
-                                  })}
-                                </span>
-                              </span>
-                              <span className="gradient-text font-bold">
-                                {formatMinutes(Math.floor(
-                                  (new Date(s.clock_out) - new Date(s.clock_in)) / 60000
-                                ))}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-green-400 font-bold animate-pulse">
-                              Active now
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* No sessions */}
-                {(!agent.sessions || agent.sessions.length === 0) && (
-                  <div className="text-brand-muted text-xs text-center py-2">
-                    No sessions on this date
-                  </div>
-                )}
+                <div className={`shrink-0 text-lg font-extrabold tabular-nums ${agent.totalMinutes > 0 ? 'text-white' : 'text-zinc-500'}`}>
+                  {formatDuration(agent.totalMinutes)}
+                </div>
               </div>
-            ))}
-          </div>
-        )}
+
+              {agent.sessions?.length > 0 ? (
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {agent.sessions.map((s, i) => (
+                    <li key={i} className="rounded-lg bg-white/5 px-2.5 py-1 text-xs text-zinc-400 tabular-nums">
+                      <span className="font-bold text-white">{formatTime(s.clock_in)}</span>
+                      {' to '}
+                      {s.clock_out
+                        ? <span className="font-bold text-white">{formatTime(s.clock_out)}</span>
+                        : <span className="font-bold text-emerald-300">now</span>}
+                      {` (${formatDuration(sessionMinutes(s))})`}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1 text-xs text-zinc-500">Did not clock in</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       </div>
     </div>
   )

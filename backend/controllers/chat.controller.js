@@ -39,7 +39,7 @@ const sendMessage = async (req, res) => {
   // Fetch conversation + subscription check
   const { data: conv } = await supabase
     .from('conversations')
-    .select('*, personas(id, name)')
+    .select('*, personas(*)')
     .eq('id', conversationId)
     .eq('user_id', userId)
     .single()
@@ -90,7 +90,7 @@ memoryService.extractAndSave(userId, content).catch(() => {})
 
 let replyContent
 try {
-  replyContent = await generateReply(conv.personas.id, memory || [], history || [])
+  replyContent = await generateReply(conv.personas, memory || [], history || [])
 } catch (e) {
   replyContent = "Hey, I'm here for you"
 }

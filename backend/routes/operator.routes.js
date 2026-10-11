@@ -33,7 +33,7 @@ router.get('/queue', async (req, res) => {
 
   let query = supabase
     .from('conversations')
-    .select('id, status, created_at, assigned_to, users(name), personas(name), messages(count)')
+    .select('id, status, created_at, assigned_to, persona_id, users(name), personas(name), messages(count)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(50)
@@ -48,6 +48,7 @@ router.get('/queue', async (req, res) => {
   const mapped = (convs || []).map(c => ({
     id: c.id,
     userName: c.users?.name || 'Unknown',
+    personaId: c.persona_id,
     personaName: c.personas?.name || 'Unknown',
     messageCount: c.messages?.[0]?.count || 0,
     createdAt: c.created_at,
@@ -86,11 +87,11 @@ router.post('/suggest', async (req, res) => {
   const { conversationId, messages } = req.body
 
   const { data: conv } = await supabase
-    .from('conversations').select('persona_id').eq('id', conversationId).single()
+    .from('conversations').select('persona_id, personas(*)').eq('id', conversationId).single()
   if (!conv) return err(res, 'Conversation not found', 404)
 
   try {
-    const suggestions = await generateSuggestions(conv.persona_id, messages || [])
+    const suggestions = await generateSuggestions(conv.personas || conv.persona_id, messages || [])
     ok(res, { suggestions })
   } catch (e) {
     // OpenAI quota exceeded or unavailable — return placeholder suggestions
@@ -258,6 +259,55 @@ router.get('/admin/hours', async (req, res) => {
   })
 
   ok(res, { agents, date })
+})
+
+// Admin only — numbers for the dashboard overview
+router.get('/admin/overview', async (req, res) => {
+  if (req.operator.role !== 'admin') return err(res, 'Forbidden', 403)
+
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const count = (q) => q.then(r => r.count || 0)
+
+  const [members, paying, activeChats, messagesToday, personas, waiting, onShift] = await Promise.all([
+    count(supabase.from('users').select('*', { count: 'exact', head: true })),
+    count(supabase.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active')),
+    count(supabase.from('conversations').select('*', { count: 'exact', head: true }).eq('status', 'active')),
+    count(supabase.from('messages').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString())),
+    supabase.from('personas').select('*').then(r => r.data || []),
+    supabase.from('conversations')
+      .select('id, created_at, persona_id, users(name), personas(name), messages(count)')
+      .eq('status', 'active').is('assigned_to', null)
+      .order('created_at', { ascending: false }).limit(6)
+      .then(r => r.data || []),
+    supabase.from('operator_sessions')
+      .select('clock_in, operators(id, name, role)')
+      .is('clock_out', null)
+      .then(r => r.data || []),
+  ])
+
+  ok(res, {
+    members,
+    paying,
+    activeChats,
+    messagesToday,
+    modelsLive: personas.filter(p => p.is_active !== false).length,
+    modelsHidden: personas.filter(p => p.is_active === false).length,
+    waiting: waiting.map(c => ({
+      id: c.id,
+      userName: c.users?.name || 'Unknown',
+      personaId: c.persona_id,
+      personaName: c.personas?.name || 'Unknown',
+      messageCount: c.messages?.[0]?.count || 0,
+      createdAt: c.created_at,
+    })),
+    onShift: onShift.filter(s => s.operators).map(s => ({
+      id: s.operators.id,
+      name: s.operators.name,
+      role: s.operators.role,
+      since: s.clock_in,
+    })),
+  })
 })
 
 module.exports = router

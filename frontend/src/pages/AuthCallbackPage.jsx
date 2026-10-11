@@ -4,6 +4,13 @@ import { supabase } from '@services/supabaseClient'
 import { useAuthStore } from '@store/index'
 import api from '@services/api'
 import Spinner from '@components/common/Spinner'
+import toast from 'react-hot-toast'
+
+// Read once at load — Supabase puts OAuth failures in the callback URL
+const urlParams = new URLSearchParams(
+  window.location.hash.replace(/^#/, '') || window.location.search
+)
+const urlError = urlParams.get('error_description') || urlParams.get('error')
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate()
@@ -14,6 +21,9 @@ export default function AuthCallbackPage() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
         if (error || !session) {
+          const reason = urlError || error?.message || 'No session returned'
+          console.error('Auth callback error:', reason)
+          toast.error(`Google login failed: ${reason}`)
           navigate('/login')
           return
         }
@@ -30,6 +40,7 @@ export default function AuthCallbackPage() {
         navigate('/personas')
       } catch (err) {
         console.error('Auth callback error:', err)
+        toast.error(`Google login failed: ${err.message || 'could not reach the server'}`)
         navigate('/login')
       }
     }

@@ -10,7 +10,10 @@ import ChatPage from '@pages/ChatPage'
 import SubscriptionPage from '@pages/SubscriptionPage'
 import ProfilePage from '@pages/ProfilePage'
 import OperatorLoginPage from '@pages/operator/OperatorLoginPage'
-import OperatorDashboardPage from '@pages/operator/OperatorDashboardPage'
+import AdminLayout from '@components/operator/AdminLayout'
+import OverviewPage from '@pages/operator/OverviewPage'
+import ModelsPage from '@pages/operator/ModelsPage'
+import ConversationsPage from '@pages/operator/ConversationsPage'
 import Navbar from '@components/common/Navbar'
 import AdminHoursPage from '@pages/operator/AdminHoursPage'
 import ChatListPage from '@pages/ChatListPage'
@@ -30,6 +33,12 @@ function PrivateRoute({ children }) {
 function OperatorRoute({ children }) {
   const operator = useAuthStore((s) => s.operator)
   return operator ? children : <Navigate to="/operator/login" replace />
+}
+
+// Admins land on the overview; agents go straight to their conversations
+function OperatorHome() {
+  const operator = useAuthStore((s) => s.operator)
+  return operator?.role === 'admin' ? <OverviewPage /> : <Navigate to="/operator/chats" replace />
 }
 
 function PublicRoute({ children }) {
@@ -55,8 +64,13 @@ export default function App() {
 
         {/* Operator routes */}
         <Route path="/operator/login" element={<OperatorLoginPage />} />
-        <Route path="/operator/dashboard" element={<OperatorRoute><OperatorDashboardPage /></OperatorRoute>} />
-        <Route path="/operator/hours" element={<OperatorRoute><AdminHoursPage /></OperatorRoute>} />
+        <Route path="/operator" element={<OperatorRoute><AdminLayout /></OperatorRoute>}>
+          <Route index element={<OperatorHome />} />
+          <Route path="models" element={<ModelsPage />} />
+          <Route path="chats" element={<ConversationsPage />} />
+          <Route path="hours" element={<AdminHoursPage />} />
+          <Route path="dashboard" element={<Navigate to="/operator" replace />} />
+        </Route>
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

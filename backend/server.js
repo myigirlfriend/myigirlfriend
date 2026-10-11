@@ -10,16 +10,29 @@ const personaRoutes = require('./routes/persona.routes')
 const subscriptionRoutes = require('./routes/subscription.routes')
 const operatorRoutes = require('./routes/operator.routes')
 const profileRoutes = require('./routes/profile.routes')
+const modelRoutes = require('./routes/model.routes')
 
 const app = express()
 const PORT = process.env.PORT || 4000
 
 // ─── Security middleware ──────────────────────────────────────
 app.use(helmet())
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', credentials: true }))
+// In dev, Vite picks the next free port (5174, 5175…) — allow any localhost origin
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
+const isProd = process.env.NODE_ENV === 'production'
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || origin === FRONTEND_URL) return cb(null, true)
+    if (!isProd && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return cb(null, true)
+    cb(null, false)
+  },
+  credentials: true,
+}))
 
 // Stripe webhook needs raw body — must come before express.json()
 app.use('/api/subscription/webhook', express.raw({ type: 'application/json' }))
+// Model photos arrive as base64 inside JSON — allow a larger body on that route only
+app.use('/api/operator/models', express.json({ limit: '8mb' }))
 app.use(express.json())
 
 // ─── Global rate limiter ──────────────────────────────────────
@@ -46,6 +59,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/personas', personaRoutes)
 app.use('/api/subscription', subscriptionRoutes)
+app.use('/api/operator/models', modelRoutes)
 app.use('/api/operator', operatorRoutes)
 
 // ─── Health check ─────────────────────────────────────────────

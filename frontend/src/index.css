@@ -72,6 +72,33 @@
            transition-all duration-200;
   }
 
+  /* ─── Admin dashboard controls ─── */
+  .admin-label {
+    @apply block text-sm font-bold text-white mb-1.5;
+  }
+  .admin-help {
+    @apply text-sm text-zinc-400 mt-1.5;
+  }
+  .admin-input {
+    @apply w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5
+           text-brand-text placeholder:text-zinc-500
+           focus:outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/25
+           transition-colors duration-150;
+  }
+  .admin-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-brand-border
+           px-4 py-2.5 text-sm font-bold text-white whitespace-nowrap
+           hover:bg-white/5 active:translate-y-px transition-colors duration-150
+           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pink
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .admin-btn-primary {
+    @apply admin-btn border-transparent bg-brand-gradient hover:bg-brand-gradient hover:opacity-90;
+  }
+  .admin-skeleton {
+    @apply rounded-xl bg-white/5 motion-safe:animate-pulse;
+  }
+
   /* Card surface */
   .card {
     @apply bg-brand-card border border-brand-border rounded-2xl p-4;

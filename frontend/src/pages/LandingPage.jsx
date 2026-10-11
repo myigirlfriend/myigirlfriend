@@ -250,7 +250,7 @@ export default function LandingPage() {
           transition={{ delay: 0.4 }}
           className="text-brand-muted text-xs tracking-[0.3em] mb-6 font-semibold uppercase relative z-10"
         >
-          conversation · connection · something real
+          conversation • connection • companionship
         </motion.p>
 
         <motion.h1
@@ -393,7 +393,7 @@ export default function LandingPage() {
                 price: '$9.99',
                 period: '/ 7 days',
                 desc: 'Perfect for getting started',
-                features: ['Unlimited messages', '1 companion of your choice', 'She remembers you', 'Standard support'],
+                features: ['Unlimited messages', '1 companion of your choice', 'Standard support'],
                 cta: 'Get Basic',
                 popular: false,
               },
@@ -402,7 +402,7 @@ export default function LandingPage() {
                 price: '$19.99',
                 period: '/ month',
                 desc: 'The full experience',
-                features: ['Unlimited messages', 'All 5 companions', 'Deep memory system', 'Priority support', 'Early access to new features'],
+                features: ['Unlimited messages', 'Deep memory system', 'Priority support', 'Early access to new features'],
                 cta: 'Get Premium',
                 popular: true,
               },
@@ -509,7 +509,7 @@ export default function LandingPage() {
             <div>
               <NavLogo />
               <p className="text-brand-muted text-xs mt-3 leading-relaxed max-w-xs">
-                conversation. connection. something real. Your companion is always here.
+                conversation. connection. companionship. Your companion is always here.
               </p>
               {/* Social links */}
               <div className="flex items-center gap-3 mt-4">

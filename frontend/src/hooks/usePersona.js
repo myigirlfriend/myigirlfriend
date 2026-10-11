@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { usePersonaStore, useAuthStore } from '@store/index'
 import api from '@services/api'
+import { setLivePersonas } from '@config/personas'
 
 export function usePersona() {
   const { personas, activePersona, setPersonas, setActivePersona } = usePersonaStore()
   const user = useAuthStore((s) => s.user)
   const navigate = useNavigate()
 
+  // Always refresh, so models added in the admin dashboard show up without a reload
   useEffect(() => {
-    if (personas.length === 0) {
-      api.get('/api/personas')
-        .then((data) => setPersonas(data.personas))
-        .catch(() => toast.error('Could not load personas'))
-    }
+    api.get('/api/personas')
+      .then((data) => setPersonas(setLivePersonas(data.personas)))
+      .catch(() => toast.error('Could not load personas'))
   }, [])
 
   const selectPersona = useCallback(async (persona) => {
