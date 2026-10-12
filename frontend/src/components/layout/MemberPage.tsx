@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react'
+import { usePageTitle } from '@hooks/usePageTitle'
 
 interface MemberPageProps {
   title: string
   subtitle?: ReactNode
+  /** Browser tab title, when the on-page title is too long or too specific for it */
+  tabTitle?: string
   /** Buttons shown to the right of the title */
   actions?: ReactNode
   /** Use the full content width, for grids. Lists and forms read better in the default narrow column. */
@@ -11,7 +14,9 @@ interface MemberPageProps {
 }
 
 /** Frame for the signed-in tab screens: page backdrop, one title style, room for the bottom nav. */
-export default function MemberPage({ title, subtitle, actions, wide = false, children }: MemberPageProps) {
+export default function MemberPage({ title, tabTitle, subtitle, actions, wide = false, children }: MemberPageProps) {
+  usePageTitle(tabTitle ?? title)
+
   return (
     <div className="page pb-28">
       <div className={`mx-auto px-4 sm:px-6 ${wide ? 'max-w-6xl' : 'max-w-2xl'}`}>

@@ -3,9 +3,11 @@ import { motion } from 'framer-motion'
 import { MessageCircleOff } from 'lucide-react'
 import Button from '@components/common/Button'
 import IconTile from '@components/common/IconTile'
+import { usePageTitle } from '@hooks/usePageTitle'
 
 export default function NotFoundPage() {
   const navigate = useNavigate()
+  usePageTitle('Page not found')
 
   return (
     <div className="page flex flex-col items-center justify-center px-4 text-center">

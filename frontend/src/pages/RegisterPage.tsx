@@ -27,7 +27,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Create account" subtitle="Find your companion.">
+    <AuthLayout title="Create account" tabTitle="Sign up" subtitle="Find your companion.">
       <GoogleButton label="Sign up with Google" />
       <OrDivider />
 

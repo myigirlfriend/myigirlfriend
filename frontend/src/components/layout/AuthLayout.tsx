@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, type LucideIcon } from 'lucide-react'
 import IconTile from '@components/common/IconTile'
 import Logo from '@components/common/Logo'
+import { usePageTitle } from '@hooks/usePageTitle'
 
 interface AuthLayoutProps {
   title: string
+  /** Browser tab title, when the on-page title is a greeting rather than the page's name */
+  tabTitle?: string
   subtitle?: ReactNode
   /** Shown above the title. Without it the logo is shown. */
   icon?: LucideIcon
@@ -15,7 +18,9 @@ interface AuthLayoutProps {
 }
 
 /** Centred column shared by sign in, sign up and the password screens. */
-export default function AuthLayout({ title, subtitle, icon, back, children }: AuthLayoutProps) {
+export default function AuthLayout({ title, tabTitle, subtitle, icon, back, children }: AuthLayoutProps) {
+  usePageTitle(tabTitle ?? title)
+
   return (
     <div className="page flex flex-col px-4">
       {back && (

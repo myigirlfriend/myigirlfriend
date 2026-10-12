@@ -25,7 +25,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout title="Welcome back" subtitle="She missed you.">
+    <AuthLayout title="Welcome back" tabTitle="Sign in" subtitle="She missed you.">
       <GoogleButton label="Continue with Google" />
       <OrDivider />
 

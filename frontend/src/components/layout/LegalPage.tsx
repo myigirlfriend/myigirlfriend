@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import IconButton from '@components/common/IconButton'
+import { usePageTitle } from '@hooks/usePageTitle'
 
 export interface LegalSection {
   title: string
@@ -17,6 +18,7 @@ interface LegalPageProps {
 /** Shared layout of the Terms and Privacy pages. */
 export default function LegalPage({ title, updated, intro, sections }: LegalPageProps) {
   const navigate = useNavigate()
+  usePageTitle(title)
 
   return (
     <div className="min-h-[100dvh] bg-brand-dark pb-28">

@@ -9,6 +9,7 @@ import Avatar from '@components/common/Avatar'
 import IconButton from '@components/common/IconButton'
 import Timer from '@components/common/Timer'
 import { useChat } from '@hooks/useChat'
+import { usePageTitle } from '@hooks/usePageTitle'
 import { usePersonaStore } from '@store/index'
 
 export default function ChatPage() {
@@ -19,6 +20,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  usePageTitle(activePersona ? `Chat with ${activePersona.name}` : 'Chat')
 
   useEffect(() => { if (!activePersona) navigate('/personas') }, [activePersona, navigate])
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, isTyping])

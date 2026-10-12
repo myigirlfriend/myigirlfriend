@@ -43,6 +43,7 @@ export default function SubscriptionPage() {
 
   return (
     <MemberPage
+      tabTitle="Plans"
       title={isPaid ? 'Your subscription' : 'Unlock everything'}
       subtitle={isPaid ? `You're on the ${planLabel(plan)} plan.` : 'No limits. Real connection.'}
     >

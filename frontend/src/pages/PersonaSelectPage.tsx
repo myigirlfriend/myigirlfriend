@@ -11,6 +11,7 @@ export default function PersonaSelectPage() {
   return (
     <MemberPage
       wide
+      tabTitle="Companions"
       title="Who do you want to talk to?"
       subtitle="Each one is different. Tap a photo to start chatting, free to try."
     >

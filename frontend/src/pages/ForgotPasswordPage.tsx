@@ -54,6 +54,7 @@ export default function ForgotPasswordPage() {
     <AuthLayout
       icon={Mail}
       title="Forgot your password?"
+      tabTitle="Reset password"
       subtitle="No worries. Enter your email and we'll send you a reset link."
       back={BACK}
     >

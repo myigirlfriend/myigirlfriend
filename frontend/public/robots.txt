@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /operator
+Disallow: /chat
+Disallow: /profile
+Disallow: /subscription

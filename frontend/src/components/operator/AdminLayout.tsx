@@ -4,6 +4,7 @@ import { Clock, Heart, LayoutDashboard, LogOut, Menu, MessagesSquare, X, type Lu
 import IconButton from '@components/common/IconButton'
 import Logo from '@components/common/Logo'
 import AgentHours from '@components/operator/AgentHours'
+import { usePageTitle } from '@hooks/usePageTitle'
 import { useAuthStore } from '@store/index'
 import type { Operator } from '@/types'
 
@@ -84,6 +85,7 @@ export default function AdminLayout() {
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
   const current = NAV.find((n) => (n.end ? location.pathname === n.to : location.pathname.startsWith(n.to)))
+  usePageTitle(`${current?.label || 'Dashboard'} · Team`)
 
   return (
     <div className="flex h-[100dvh] bg-brand-dark text-brand-text">
