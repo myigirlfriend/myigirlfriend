@@ -52,7 +52,7 @@ Apply this consistently across all pages and components.
 | Mariah | Sweet Romantic — affectionate, gentle | Emotional bonding |
 | Hannah | Easygoing Friend — casual, funny, relatable | Broad appeal |
 
-Each has a distinct system prompt in `backend/services/ai.service.js`.
+Each has a distinct system prompt in `backend/src/services/ai.service.ts`.
 
 ---
 
@@ -74,7 +74,7 @@ operator_sessions — id, operator_id, clock_in, clock_out
 
 ## Key Business Rules
 
-- Free users: 10 messages OR 10 minutes → upsell modal fires
+- Free users: 5 messages OR 10 minutes → upsell modal fires
 - Upsell: AI-generated message with Stripe payment link embedded
 - Operators: up to 8 agents, each gets assigned chats from a queue
 - Operator sees 3 AI reply suggestions per message, can edit or write custom
@@ -137,4 +137,40 @@ myigirlfriend/
 └── backend/                   ← Node.js + Express API
 ```
 
-See `frontend/src/` and `backend/` folders for full structure.
+Both packages are TypeScript (strict). `npm run typecheck` in either folder checks types;
+`npm run build` type-checks and builds.
+
+### Backend layers (`backend/src/`)
+
+A request flows one way: **route → controller → service → repository**.
+
+| Folder | Responsibility | Must not |
+|---|---|---|
+| `routes/` | Map a URL to middleware + a controller method | Contain logic |
+| `controllers/` | Read and validate the request, call a service, send the response | Touch Supabase, Stripe or OpenAI |
+| `services/` | Business rules. Throw `HttpError` for expected failures | Touch `req` / `res` or Supabase |
+| `repositories/` | The only place that queries Supabase. Return typed rows | Contain business rules |
+| `types/` | Table rows (`db.types.ts`) and request/response shapes, one file per domain | |
+| `middleware/` | Auth guards and the error handler | |
+| `config/` | `env.ts` (validated env vars) and the Supabase / Stripe / OpenAI clients | |
+
+The backend runs with `npm run dev` (tsx, no build step). Production: `npm run build` then `npm start` (runs `dist/server.js`).
+
+### Frontend (`frontend/src/`)
+
+| Folder | Responsibility |
+|---|---|
+| `types/` | Shared types, one file per domain |
+| `services/api/` | Every API call, typed. Components never build URLs themselves |
+| `store/`, `hooks/` | Zustand stores and the hooks that wrap them |
+| `config/` | Personas, plans/prices, free limits |
+| `components/common/` | UI primitives: `Button`, `IconButton`, `Avatar`, `Badge`, `Modal`, `IconTile`, `EmptyState`… |
+| `components/layout/` | Page frames: `AuthLayout`, `MemberPage`, `LegalPage` |
+| `pages/` | One file per route |
+
+### UI rules
+
+- Colours, gradients and shadows are tokens in `frontend/src/index.css` (`:root`). Never hardcode a hex in a component.
+- Use the primitives in `components/common/` before writing new markup. Buttons are `<Button>`; a link that looks like a button uses the `.btn` classes.
+- Custom CSS classes are named `block--modifier` (`.btn--primary`, `.input--compact`, `.surface--accent`).
+- Inline `style` is only for per-companion colours that come from data.

@@ -2,106 +2,155 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Tokens ───────────────────────────────────────────────────
+   The single source for brand colours, gradients and shadows.
+   tailwind.config.ts reads these, so `bg-brand-card`, `text-brand-muted`,
+   `bg-brand-gradient` etc. all resolve here. Colours are space-separated RGB
+   channels so Tailwind opacity modifiers (`bg-brand-purple/15`) keep working. */
+:root {
+  --color-brand-purple: 155 89 182;
+  --color-brand-pink: 233 30 140;
+  --color-brand-glow: 26 10 46;
+  --color-brand-dark: 10 10 10;
+  --color-brand-surface: 17 17 17;
+  --color-brand-card: 26 26 26;
+  --color-brand-border: 42 42 42;
+  --color-brand-text: 249 250 251;
+  /* Secondary text. Passes WCAG AA on every surface above. */
+  --color-brand-muted: 161 161 170;
+  /* Placeholders and de-emphasised values only, never body copy */
+  --color-brand-subtle: 113 113 122;
+
+  --gradient-brand: linear-gradient(135deg, rgb(var(--color-brand-purple)), rgb(var(--color-brand-pink)));
+  --gradient-brand-soft: linear-gradient(135deg, rgb(var(--color-brand-purple) / 0.15), rgb(var(--color-brand-pink) / 0.15));
+  --gradient-page: radial-gradient(ellipse at top, rgb(var(--color-brand-glow)) 0%, rgb(var(--color-brand-dark)) 60%);
+
+  --shadow-brand: 0 0 20px rgb(var(--color-brand-purple) / 0.3);
+  --shadow-brand-lg: 0 0 40px rgb(var(--color-brand-pink) / 0.2);
+
+  --font-sans: 'Nunito', sans-serif;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
   }
 
   body {
-    background-color: #0a0a0a;
-    color: #f9fafb;
-    font-family: 'Nunito', sans-serif;
+    background-color: rgb(var(--color-brand-dark));
+    color: rgb(var(--color-brand-text));
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* One keyboard focus style for every interactive element */
+  :where(a, button, summary, [role='button']):focus-visible {
+    outline: 2px solid rgb(var(--color-brand-pink));
+    outline-offset: 2px;
   }
 
   ::-webkit-scrollbar {
     width: 4px;
   }
   ::-webkit-scrollbar-track {
-    background: #111111;
+    background: rgb(var(--color-brand-surface));
   }
   ::-webkit-scrollbar-thumb {
-    background: #9B59B6;
+    background: rgb(var(--color-brand-purple));
     border-radius: 4px;
   }
 }
 
+/* ─── Components ───────────────────────────────────────────────
+   Named block--modifier: a base class plus modifiers that only override what changes.
+   Prefer the React primitives in components/common (Button, IconButton, Badge…);
+   use these classes directly only where a primitive does not fit, e.g. a <Link> styled as a button. */
 @layer components {
-  /* Gradient text */
+  /* Page backdrop shared by member-facing screens */
+  .page {
+    @apply min-h-[100dvh] bg-brand-dark bg-page-glow;
+  }
+
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-brand-gradient;
+    @apply bg-brand-gradient bg-clip-text text-transparent;
   }
 
-  /* Gradient border trick */
-  .gradient-border {
-    position: relative;
-    border-radius: 12px;
+  /* Button */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent
+           px-6 py-3 text-sm font-bold text-white transition duration-150
+           active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    padding: 1px;
-    background: linear-gradient(135deg, #9B59B6, #E91E8C);
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+  .btn--primary {
+    @apply bg-brand-gradient bg-origin-border shadow-brand hover:opacity-90;
   }
-
-  /* Primary button */
-  .btn-primary {
-    @apply bg-brand-gradient text-white font-bold py-3 px-6 rounded-xl
-           hover:opacity-90 active:scale-95 transition-all duration-200
-           shadow-brand;
+  .btn--secondary {
+    @apply border-white/15 bg-white/[0.08] hover:bg-white/[0.12];
   }
-
-  /* Ghost button */
-  .btn-ghost {
-    @apply border border-brand-border text-brand-text font-semibold py-3 px-6
-           rounded-xl hover:border-brand-purple transition-all duration-200;
+  .btn--ghost {
+    @apply border-brand-border hover:border-brand-purple hover:bg-white/5;
   }
-
-  /* Input field */
-  .input-field {
-    @apply w-full bg-brand-card border border-brand-border rounded-xl px-4 py-3
-           text-brand-text placeholder-brand-muted
-           focus:outline-none focus:border-brand-purple focus:shadow-brand
-           transition-all duration-200;
+  .btn--danger {
+    @apply border-red-400/30 text-red-400 hover:bg-red-400/10;
+  }
+  .btn--xs {
+    @apply px-3 py-1.5;
+  }
+  .btn--sm {
+    @apply px-4 py-2.5;
+  }
+  .btn--lg {
+    @apply px-8 py-4 text-lg;
+  }
+  .btn--block {
+    @apply w-full;
   }
 
-  /* ─── Admin dashboard controls ─── */
-  .admin-label {
-    @apply block text-sm font-bold text-white mb-1.5;
+  /* Form field */
+  .field__label {
+    @apply mb-1.5 block text-sm font-bold text-white;
   }
-  .admin-help {
-    @apply text-sm text-zinc-400 mt-1.5;
+  .field__help {
+    @apply mt-1.5 text-sm text-brand-muted;
   }
-  .admin-input {
-    @apply w-full bg-brand-surface border border-brand-border rounded-xl px-3.5 py-2.5
-           text-brand-text placeholder:text-zinc-500
-           focus:outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/25
-           transition-colors duration-150;
+  .field__error {
+    @apply mt-1.5 text-sm font-semibold text-red-400;
   }
-  .admin-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-brand-border
-           px-4 py-2.5 text-sm font-bold text-white whitespace-nowrap
-           hover:bg-white/5 active:translate-y-px transition-colors duration-150
-           focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pink
-           disabled:opacity-50 disabled:pointer-events-none;
+
+  .input {
+    @apply w-full rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-brand-text
+           transition-colors duration-150 placeholder:text-brand-subtle
+           focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/25;
   }
-  .admin-btn-primary {
-    @apply admin-btn border-transparent bg-brand-gradient hover:bg-brand-gradient hover:opacity-90;
+  /* Denser input for the dashboard and the chat composer */
+  .input--compact {
+    @apply px-3.5 py-2.5;
   }
-  .admin-skeleton {
+  /* For inputs that sit on a card-coloured panel */
+  .input--sunken {
+    @apply bg-brand-surface;
+  }
+
+  /* Card */
+  .surface {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.04];
+  }
+  .surface--accent {
+    @apply border-brand-purple/30 bg-brand-gradient-soft;
+  }
+
+  /* Loading placeholder */
+  .skeleton {
     @apply rounded-xl bg-white/5 motion-safe:animate-pulse;
   }
+}
 
-  /* Card surface */
-  .card {
-    @apply bg-brand-card border border-brand-border rounded-2xl p-4;
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
