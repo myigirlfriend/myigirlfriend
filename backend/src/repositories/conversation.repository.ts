@@ -106,6 +106,11 @@ export const conversationRepository = {
     done(await supabase.from('conversations').update({ assigned_to: operatorId }).eq('id', id))
   },
 
+  /** Hands every chat an operator was handling back to the shared queue. */
+  async unassignOperator(operatorId: string): Promise<void> {
+    done(await supabase.from('conversations').update({ assigned_to: null }).eq('assigned_to', operatorId))
+  },
+
   /** The persona id of every conversation, for counting chats per model. */
   async findAllPersonaIds(): Promise<string[]> {
     const rows = many<Pick<ConversationRow, 'persona_id'>>(await supabase.from('conversations').select('persona_id'))

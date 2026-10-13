@@ -1,65 +1,75 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Play, Square } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '@components/common/Button'
 import { operatorApi } from '@services/api'
-import { formatClock, formatDuration } from '@utils/formatTime'
+import { formatClock, formatDuration, startOfLocalDay } from '@utils/formatTime'
 import { errorMessage } from '@utils/text'
 
 // Clock in / clock out control shown at the bottom of the dashboard rail
 export default function AgentHours() {
   /** When the running shift started (ms), or null when clocked out */
   const [sessionStart, setSessionStart] = useState<number | null>(null)
-  const [elapsed, setElapsed] = useState(0)
+  /** Local midnight that "today" is counted from */
+  const [dayStart, setDayStart] = useState(() => startOfLocalDay().getTime())
+  const [now, setNow] = useState(Date.now)
+  /** Finished shifts today, in minutes. The running shift is added on top. */
   const [totalMinutes, setTotalMinutes] = useState(0)
   const [loading, setLoading] = useState(false)
   const clockedIn = sessionStart !== null
 
-  // Fetch today's hours on mount
-  useEffect(() => {
-    operatorApi.hours()
+  // Ask the server for today's hours and whether a shift is running (it may have started on another device or day)
+  const sync = useCallback(() => {
+    const today = startOfLocalDay()
+    setDayStart(today.getTime())
+    return operatorApi.hours(today)
       .then((data) => {
         setTotalMinutes(data.totalMinutesToday || 0)
-        if (data.activeSince) {
-          const start = new Date(data.activeSince).getTime()
-          setSessionStart(start)
-          setElapsed(Math.floor((Date.now() - start) / 1000))
-        }
+        setSessionStart(data.activeSince ? new Date(data.activeSince).getTime() : null)
+        setNow(Date.now())
       })
       .catch(() => {})
   }, [])
+  useEffect(() => { void sync() }, [sync])
 
-  // Live timer tick
+  // Live timer tick. Re-sync once the day rolls over at midnight.
   useEffect(() => {
     if (sessionStart === null) return
     const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - sessionStart) / 1000))
+      setNow(Date.now())
+      if (startOfLocalDay().getTime() !== dayStart) void sync()
     }, 1000)
     return () => clearInterval(interval)
-  }, [sessionStart])
+  }, [sessionStart, dayStart, sync])
+
+  const elapsedSeconds = sessionStart === null ? 0 : Math.max(0, Math.floor((now - sessionStart) / 1000))
+  // Only the part of the running shift after midnight counts towards today
+  const runningTodayMs = sessionStart === null ? 0 : Math.max(0, now - Math.max(sessionStart, dayStart))
+  const todayMinutes = totalMinutes + Math.floor(runningTodayMs / 60000)
 
   const handleClockIn = async () => {
     setLoading(true)
     try {
-      await operatorApi.clockIn()
-      setSessionStart(Date.now())
-      setElapsed(0)
+      const { session } = await operatorApi.clockIn()
+      setSessionStart(new Date(session.clock_in).getTime())
+      setNow(Date.now())
       toast.success('Clocked in')
     } catch (err) {
       toast.error(errorMessage(err))
+      void sync()
     } finally { setLoading(false) }
   }
 
   const handleClockOut = async () => {
     setLoading(true)
     try {
-      const data = await operatorApi.clockOut()
+      const data = await operatorApi.clockOut(startOfLocalDay())
       setSessionStart(null)
-      setElapsed(0)
       setTotalMinutes(data.totalMinutesToday || 0)
       toast.success('Clocked out')
     } catch (err) {
       toast.error(errorMessage(err))
+      void sync()
     } finally { setLoading(false) }
   }
 
@@ -68,14 +78,14 @@ export default function AgentHours() {
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-xs text-brand-muted">{clockedIn ? 'On shift' : 'Your shift'}</span>
         <span className="text-xs text-brand-muted">
-          Today <span className="font-bold tabular-nums text-white">{formatDuration(totalMinutes + Math.floor(elapsed / 60))}</span>
+          Today <span className="font-bold tabular-nums text-white">{formatDuration(todayMinutes)}</span>
         </span>
       </div>
 
       {clockedIn && (
         <div className="mt-1 flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-          <span className="text-xl font-extrabold tabular-nums text-white">{formatClock(elapsed)}</span>
+          <span className="text-xl font-extrabold tabular-nums text-white">{formatClock(elapsedSeconds)}</span>
         </div>
       )}
 

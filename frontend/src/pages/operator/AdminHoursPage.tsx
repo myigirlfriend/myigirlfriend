@@ -3,10 +3,9 @@ import { Navigate } from 'react-router-dom'
 import LoadError from '@components/common/LoadError'
 import { operatorApi } from '@services/api'
 import { useAuthStore } from '@store/index'
-import { formatDuration, formatTime } from '@utils/formatTime'
+import { formatDuration, formatTime, localDateISO, localDayBounds } from '@utils/formatTime'
 import type { AgentHours, AgentSession } from '@/types'
 
-const todayISO = () => new Date().toISOString().slice(0, 10)
 
 // A session still running counts up to now
 const sessionMinutes = (session: AgentSession) => {
@@ -14,11 +13,20 @@ const sessionMinutes = (session: AgentSession) => {
   return Math.floor((end.getTime() - new Date(session.clock_in).getTime()) / 60000)
 }
 
+// Shifts that cross midnight show the date too, so "22:00 to 02:00" is not confusing
+const sessionTime = (iso: string, day: string) => {
+  const { from, to } = localDayBounds(day)
+  const t = new Date(iso)
+  return t < from || t >= to
+    ? `${t.toLocaleDateString([], { month: 'short', day: 'numeric' })} ${formatTime(iso)}`
+    : formatTime(iso)
+}
+
 export default function AdminHoursPage() {
   const operator = useAuthStore((s) => s.operator)
   const [agents, setAgents] = useState<AgentHours[] | null>(null)
   const [failed, setFailed] = useState(false)
-  const [selectedDate, setSelectedDate] = useState(todayISO)
+  const [selectedDate, setSelectedDate] = useState(() => localDateISO())
 
   const load = useCallback(() => {
     setAgents(null)
@@ -46,7 +54,7 @@ export default function AdminHoursPage() {
               id="hours-date"
               type="date"
               value={selectedDate}
-              max={todayISO()}
+              max={localDateISO()}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
               className="input input--compact input--sunken w-auto [color-scheme:dark]"
             />
@@ -90,10 +98,10 @@ export default function AdminHoursPage() {
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {agent.sessions.map((session) => (
                       <li key={session.clock_in} className="rounded-lg bg-white/5 px-2.5 py-1 text-xs tabular-nums text-brand-muted">
-                        <span className="font-bold text-white">{formatTime(session.clock_in)}</span>
+                        <span className="font-bold text-white">{sessionTime(session.clock_in, selectedDate)}</span>
                         {' to '}
                         {session.clock_out
-                          ? <span className="font-bold text-white">{formatTime(session.clock_out)}</span>
+                          ? <span className="font-bold text-white">{sessionTime(session.clock_out, selectedDate)}</span>
                           : <span className="font-bold text-emerald-300">now</span>}
                         {` (${formatDuration(sessionMinutes(session))})`}
                       </li>

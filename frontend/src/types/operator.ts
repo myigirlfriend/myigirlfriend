@@ -6,6 +6,18 @@ export interface Agent {
   name: string
   email: string
   role: OperatorRole
+  created_at?: string
+}
+
+export interface NewAgent {
+  name: string
+  email: string
+  password: string
+  role: 'agent' | 'admin'
+}
+
+export interface AgentResponse {
+  agent: Agent
 }
 
 /** An active conversation in the operator queue. */
@@ -69,6 +81,10 @@ export interface ReplyResponse {
 export interface HoursResponse {
   totalMinutesToday: number
   activeSince: string | null
+}
+
+export interface ClockInResponse {
+  session: AgentSession & { id: string }
 }
 
 export interface ClockOutResponse {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronRight, Mail, Menu, Shield, X } from 'lucide-react'
@@ -10,10 +10,26 @@ import Particles from '@components/landing/Particles'
 import { RedditIcon, TikTokIcon, XIcon } from '@components/landing/SocialIcons'
 import PlanCard from '@components/subscription/PlanCard'
 import { FREE_MESSAGE_LIMIT } from '@config/limits'
-import { PERSONAS } from '@config/personas'
+import { PERSONAS, setLivePersonas, shufflePersonas } from '@config/personas'
 import { FREE_PLAN, PAID_PLANS } from '@config/plans'
+import { personaApi } from '@services/api'
+import type { Persona } from '@/types'
 
 const PLANS = [FREE_PLAN, ...PAID_PLANS]
+
+const NUMBER_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
+  'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty']
+
+/** The models switched on in the admin dashboard, shuffled. Built-in ones show until the list arrives. */
+function useLandingPersonas(): Persona[] {
+  const [personas, setPersonas] = useState<Persona[]>(() => shufflePersonas(PERSONAS))
+  useEffect(() => {
+    personaApi.listPublic()
+      .then((data) => { if (data.personas.length > 0) setPersonas(shufflePersonas(setLivePersonas(data.personas))) })
+      .catch(() => {})
+  }, [])
+  return personas
+}
 
 const SOCIAL_LINKS = [
   { label: 'X', href: 'https://x.com/myigirlfriend?s=21', Icon: XIcon },
@@ -68,10 +84,11 @@ function TopNav() {
 }
 
 // ─── Animated persona bg ──────────────────────────────────────
-function PersonaBg() {
+function PersonaBg({ personas }: { personas: Persona[] }) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      {PERSONAS.filter((p) => p.image).map((p, i) => (
+      {/* Five floating photos fit across the hero */}
+      {personas.filter((p) => p.image).slice(0, 5).map((p, i) => (
         <motion.div
           key={p.id}
           className="absolute h-40 w-[120px] overflow-hidden rounded-2xl opacity-0"
@@ -90,6 +107,7 @@ function PersonaBg() {
 // ─── Main ─────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate()
+  const personas = useLandingPersonas()
 
   return (
     <div className="page overflow-x-hidden text-white">
@@ -98,7 +116,7 @@ export default function LandingPage() {
       {/* ── Hero ── */}
       <section className="relative flex min-h-[100dvh] flex-col items-center justify-center px-4 pt-20 text-center">
         <Particles />
-        <PersonaBg />
+        <PersonaBg personas={personas} />
 
         <div className="pointer-events-none absolute left-1/2 top-1/4 h-96 w-96 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--color-brand-purple)),transparent)] opacity-20 blur-3xl" />
         <div className="pointer-events-none absolute left-1/4 top-1/3 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgb(var(--color-brand-pink)),transparent)] opacity-[0.15] blur-3xl" />
@@ -182,11 +200,11 @@ export default function LandingPage() {
             <h2 className="mb-2 text-3xl font-extrabold">
               Meet <span className="gradient-text">the girls</span>
             </h2>
-            <p className="text-sm text-brand-muted">Five personalities. Find yours.</p>
+            <p className="text-sm text-brand-muted">{NUMBER_WORDS[personas.length] ?? personas.length} personalities. Find yours.</p>
           </motion.div>
 
           <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
-            {PERSONAS.map((p, i) => (
+            {personas.map((p, i) => (
               <motion.button
                 key={p.id}
                 type="button"

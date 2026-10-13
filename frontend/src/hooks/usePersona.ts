@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { setLivePersonas } from '@config/personas'
+import { setLivePersonas, shufflePersonas } from '@config/personas'
 import { chatApi, personaApi } from '@services/api'
 import { usePersonaStore } from '@store/index'
 import type { Persona } from '@/types'
@@ -13,7 +13,7 @@ export function usePersona() {
   // Always refresh, so models added in the admin dashboard show up without a reload
   useEffect(() => {
     personaApi.list()
-      .then((data) => setPersonas(setLivePersonas(data.personas)))
+      .then((data) => setPersonas(shufflePersonas(setLivePersonas(data.personas))))
       .catch(() => toast.error('Could not load personas'))
   }, [setPersonas])
 

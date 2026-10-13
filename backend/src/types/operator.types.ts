@@ -12,7 +12,11 @@ export interface OperatorLoginResponse {
   operator: OperatorAuth
 }
 
-export type Agent = Pick<OperatorRow, 'id' | 'name' | 'email' | 'role'>
+export type Agent = Pick<OperatorRow, 'id' | 'name' | 'email' | 'role' | 'created_at'>
+
+export interface AgentResponse {
+  agent: Agent
+}
 
 export interface AgentsResponse {
   agents: Agent[]

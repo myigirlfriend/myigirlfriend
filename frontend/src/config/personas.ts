@@ -99,3 +99,18 @@ export const setLivePersonas = (rows: PersonaSource[]): Persona[] => {
 
 export const getPersonaById = (id: string | null | undefined): Persona | null =>
   livePersonas.find((p) => p.id === id) ?? PERSONAS.find((p) => p.id === id) ?? null
+
+// Each model gets one random rank per visit. Lists come out shuffled, but keep the same order
+// while the visitor moves between pages, and a fresh order on the next visit.
+const visitRank = new Map<string, number>()
+const rankOf = (id: string): number => {
+  let rank = visitRank.get(id)
+  if (rank === undefined) {
+    rank = Math.random()
+    visitRank.set(id, rank)
+  }
+  return rank
+}
+
+export const shufflePersonas = <T extends { id: string }>(list: T[]): T[] =>
+  [...list].sort((a, b) => rankOf(a.id) - rankOf(b.id))

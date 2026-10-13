@@ -5,14 +5,14 @@ import { done, many, one, required } from './base'
 type SessionTimes = Pick<OperatorSessionRow, 'clock_in' | 'clock_out'>
 
 export const operatorSessionRepository = {
-  /** An operator's sessions that started at or after `sinceIso`, newest first. */
-  async findByOperatorSince(operatorId: string, sinceIso: string): Promise<SessionTimes[]> {
+  /** An operator's sessions that were running at any point after `sinceIso`, newest first. */
+  async findByOperatorOverlapping(operatorId: string, sinceIso: string): Promise<SessionTimes[]> {
     return many<SessionTimes>(
       await supabase
         .from('operator_sessions')
         .select('clock_in, clock_out')
         .eq('operator_id', operatorId)
-        .gte('clock_in', sinceIso)
+        .or(`clock_out.is.null,clock_out.gt.${sinceIso}`)
         .order('clock_in', { ascending: false })
     )
   },
@@ -25,6 +25,7 @@ export const operatorSessionRepository = {
         .select('id, clock_in')
         .eq('operator_id', operatorId)
         .is('clock_out', null)
+        .order('clock_in', { ascending: false })
         .limit(1)
         .maybeSingle()
     )
@@ -40,14 +41,15 @@ export const operatorSessionRepository = {
     done(await supabase.from('operator_sessions').update({ clock_out: clockOutIso }).eq('id', id))
   },
 
-  /** Every operator's sessions that started inside the given window. */
-  async findStartedBetween(fromIso: string, toIso: string): Promise<AgentSession[]> {
+  /** Every operator's sessions that overlap the given window, including ones that began before it. */
+  async findOverlapping(fromIso: string, toIso: string): Promise<AgentSession[]> {
     return many<AgentSession>(
       await supabase
         .from('operator_sessions')
         .select('operator_id, clock_in, clock_out')
-        .gte('clock_in', fromIso)
-        .lte('clock_in', toIso)
+        .lt('clock_in', toIso)
+        .or(`clock_out.is.null,clock_out.gt.${fromIso}`)
+        .order('clock_in')
     )
   },
 

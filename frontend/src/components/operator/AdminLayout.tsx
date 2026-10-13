@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Clock, Heart, LayoutDashboard, LogOut, Menu, MessagesSquare, X, type LucideIcon } from 'lucide-react'
+import { Clock, Heart, LayoutDashboard, LogOut, Menu, MessagesSquare, Users, X, type LucideIcon } from 'lucide-react'
 import IconButton from '@components/common/IconButton'
 import Logo from '@components/common/Logo'
 import AgentHours from '@components/operator/AgentHours'
@@ -21,6 +21,7 @@ const NAV: NavItem[] = [
   { to: '/operator', end: true, label: 'Overview', icon: LayoutDashboard, adminOnly: true },
   { to: '/operator/models', label: 'Models', icon: Heart, adminOnly: true },
   { to: '/operator/chats', label: 'Conversations', icon: MessagesSquare },
+  { to: '/operator/agents', label: 'Agents', icon: Users, adminOnly: true },
   { to: '/operator/hours', label: 'Agent hours', icon: Clock, adminOnly: true },
 ]
 

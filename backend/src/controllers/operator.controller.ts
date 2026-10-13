@@ -3,6 +3,7 @@ import { currentOperator } from '../middleware/auth.middleware'
 import { operatorService } from '../services'
 import type {
   AdminHoursResponse,
+  AgentResponse,
   AgentsResponse,
   ChatHistoryEntry,
   ClockInResponse,
@@ -16,6 +17,7 @@ import type {
   SuggestionsResponse,
 } from '../types'
 import { badRequest } from '../utils/httpError'
+import { parseInstant } from '../utils/time'
 import { ok } from '../utils/response'
 import { isRecord, text } from '../utils/validate'
 
@@ -51,6 +53,26 @@ export const operatorController = {
     ok<AgentsResponse>(res, { agents: await operatorService.listAgents() })
   },
 
+  async createAgent(req: Request, res: Response) {
+    const agent = await operatorService.createAgent({
+      name: text(req.body.name),
+      email: text(req.body.email),
+      password: text(req.body.password),
+      role: text(req.body.role),
+    })
+    ok<AgentResponse>(res, { agent }, 201)
+  },
+
+  async resetAgentPassword(req: Request, res: Response) {
+    await operatorService.resetAgentPassword(req.params.id ?? '', text(req.body.password))
+    ok<SuccessResponse>(res, { success: true })
+  },
+
+  async deleteAgent(req: Request, res: Response) {
+    await operatorService.deleteAgent(req.params.id ?? '', currentOperator(req).id)
+    ok<SuccessResponse>(res, { success: true })
+  },
+
   async suggest(req: Request, res: Response) {
     const suggestions = await operatorService.suggestReplies(text(req.body.conversationId), toHistory(req.body.messages))
     ok<SuggestionsResponse>(res, { suggestions })
@@ -65,7 +87,7 @@ export const operatorController = {
   },
 
   async hours(req: Request, res: Response) {
-    ok<HoursResponse>(res, await operatorService.getHours(currentOperator(req).id))
+    ok<HoursResponse>(res, await operatorService.getHours(currentOperator(req).id, parseInstant(req.query.since) ?? undefined))
   },
 
   async clockIn(req: Request, res: Response) {
@@ -73,12 +95,13 @@ export const operatorController = {
   },
 
   async clockOut(req: Request, res: Response) {
-    ok<ClockOutResponse>(res, await operatorService.clockOut(currentOperator(req).id))
+    ok<ClockOutResponse>(res, await operatorService.clockOut(currentOperator(req).id, parseInstant(req.body?.since) ?? undefined))
   },
 
   async adminHours(req: Request, res: Response) {
     const date = typeof req.query.date === 'string' ? req.query.date : undefined
-    ok<AdminHoursResponse>(res, await operatorService.getAdminHours(date))
+    const window = { from: parseInstant(req.query.from), to: parseInstant(req.query.to), date }
+    ok<AdminHoursResponse>(res, await operatorService.getAdminHours(window))
   },
 
   async overview(_req: Request, res: Response) {

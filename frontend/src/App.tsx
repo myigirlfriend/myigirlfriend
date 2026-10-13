@@ -22,6 +22,7 @@ const ResetPasswordPage = lazy(() => import('@pages/ResetPasswordPage'))
 const SubscriptionPage = lazy(() => import('@pages/SubscriptionPage'))
 const TermsPage = lazy(() => import('@pages/TermsPage'))
 const AdminHoursPage = lazy(() => import('@pages/operator/AdminHoursPage'))
+const AgentsPage = lazy(() => import('@pages/operator/AgentsPage'))
 const ConversationsPage = lazy(() => import('@pages/operator/ConversationsPage'))
 const ModelsPage = lazy(() => import('@pages/operator/ModelsPage'))
 const OperatorLoginPage = lazy(() => import('@pages/operator/OperatorLoginPage'))
@@ -91,6 +92,7 @@ export default function App() {
             <Route index element={<OperatorHome />} />
             <Route path="models" element={<ModelsPage />} />
             <Route path="chats" element={<ConversationsPage />} />
+            <Route path="agents" element={<AgentsPage />} />
             <Route path="hours" element={<AdminHoursPage />} />
             <Route path="dashboard" element={<Navigate to="/operator" replace />} />
           </Route>

@@ -1,12 +1,12 @@
 import MemberPage from '@components/layout/MemberPage'
 import PersonaTile from '@components/persona/PersonaTile'
-import { PERSONAS } from '@config/personas'
+import { PERSONAS, shufflePersonas } from '@config/personas'
 import { usePersona } from '@hooks/usePersona'
 
 export default function PersonaSelectPage() {
   const { personas, selectPersona } = usePersona()
   // Built-in models show instantly; the live list replaces them as soon as it loads
-  const list = personas.length > 0 ? personas : PERSONAS
+  const list = personas.length > 0 ? personas : shufflePersonas(PERSONAS)
 
   return (
     <MemberPage

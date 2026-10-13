@@ -31,3 +31,25 @@ export const timeAgo = (iso: string | null | undefined): string => {
   if (mins < 60 * 24) return `${Math.floor(mins / 60)} hr ago`
   return formatDate(iso)
 }
+
+/** Today as YYYY-MM-DD in the viewer's own time zone (toISOString would give the UTC date). */
+export const localDateISO = (d: Date = new Date()): string => {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** Midnight at the start of today, local time. */
+export const startOfLocalDay = (d: Date = new Date()): Date => {
+  const start = new Date(d)
+  start.setHours(0, 0, 0, 0)
+  return start
+}
+
+/** Start and end of a YYYY-MM-DD day in the viewer's time zone. */
+export const localDayBounds = (date: string): { from: Date; to: Date } => {
+  const [y, m, d] = date.split('-').map(Number)
+  const from = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1)
+  const to = new Date(from)
+  to.setDate(to.getDate() + 1)
+  return { from, to }
+}
