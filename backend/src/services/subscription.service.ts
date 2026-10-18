@@ -34,7 +34,7 @@ export const subscriptionService = {
       const params: Stripe.Checkout.SessionCreateParams = {
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${env.frontendUrl}/chat?upgraded=true`,
+        success_url: `${env.frontendUrl}/subscription?upgraded=true`,
         cancel_url: `${env.frontendUrl}/subscription?cancelled=true`,
         metadata: { userId: user.id, plan },
         allow_promotion_codes: true,

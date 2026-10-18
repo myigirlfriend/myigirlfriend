@@ -17,9 +17,6 @@ import type { Persona } from '@/types'
 
 const PLANS = [FREE_PLAN, ...PAID_PLANS]
 
-const NUMBER_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
-  'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty']
-
 /** The models switched on in the admin dashboard, shuffled. Built-in ones show until the list arrives. */
 function useLandingPersonas(): Persona[] {
   const [personas, setPersonas] = useState<Persona[]>(() => shufflePersonas(PERSONAS))
@@ -45,9 +42,7 @@ const PLATFORM_LINKS = [
 ]
 
 const CONTACTS = [
-  { label: 'Admin', email: 'Admin@myigirlfriend.com' },
   { label: 'Support', email: 'Customerservice@myigirlfriend.com' },
-  { label: 'Management', email: 'management@myigirlfriend.com' },
 ]
 
 // ─── Top Nav ──────────────────────────────────────────────────
@@ -200,7 +195,7 @@ export default function LandingPage() {
             <h2 className="mb-2 text-3xl font-extrabold">
               Meet <span className="gradient-text">the girls</span>
             </h2>
-            <p className="text-sm text-brand-muted">{NUMBER_WORDS[personas.length] ?? personas.length} personalities. Find yours.</p>
+            <p className="text-sm text-brand-muted">Different personalities. Find yours.</p>
           </motion.div>
 
           <div className="scrollbar-hide flex gap-4 overflow-x-auto pb-4">
