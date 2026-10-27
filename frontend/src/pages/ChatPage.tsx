@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowUp, ChevronLeft } from 'lucide-react'
+import EmojiButton from '@components/chat/EmojiButton'
 import MessageBubble from '@components/chat/MessageBubble'
 import TypingIndicator from '@components/chat/TypingIndicator'
 import UpsellModal from '@components/chat/UpsellModal'
@@ -12,6 +13,7 @@ import Timer from '@components/common/Timer'
 import { useChat } from '@hooks/useChat'
 import { usePageTitle } from '@hooks/usePageTitle'
 import { usePersonaStore } from '@store/index'
+import { insertAtCursor } from '@utils/insertAtCursor'
 import { traitSentence } from '@utils/text'
 
 export default function ChatPage() {
@@ -119,7 +121,8 @@ export default function ChatPage() {
 
       {/* ── Composer ── */}
       <div className="shrink-0 bg-brand-dark pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
-        <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl items-end gap-2 px-3 sm:px-5">
+        <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl items-end gap-1 px-3 sm:gap-2 sm:px-5">
+          <EmojiButton onSelect={(emoji) => setInput((value) => insertAtCursor(inputRef.current, value, emoji))} />
           <label htmlFor="chat-message" className="sr-only">Message {activePersona.name}</label>
           <textarea
             id="chat-message"

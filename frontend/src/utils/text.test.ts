@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { styleFor } from '@/content/companionCopy'
 import { resolvePersona, setImageMap } from '@config/personas'
-import { initials, plural, traitSentence, traits } from './text'
+import { initials, isEmojiOnly, plural, traitSentence, traits } from './text'
 
 describe('traits', () => {
   it('splits a tagline on dots, commas, slashes and bars', () => {
@@ -50,5 +50,20 @@ describe('resolvePersona', () => {
     expect(p.name).toBe('Zara')
     expect(p.image).toBeTruthy()
     expect(p.gallery).toEqual([])
+  })
+})
+
+describe('isEmojiOnly', () => {
+  it('is true for one to three emoji, counting compound emoji as one', () => {
+    expect(isEmojiOnly('😂')).toBe(true)
+    expect(isEmojiOnly(' ❤️🔥 ')).toBe(true)
+    expect(isEmojiOnly('👨‍👩‍👧👍🏽🇳🇵')).toBe(true)
+  })
+
+  it('is false for text, numbers, empty input or too many emoji', () => {
+    expect(isEmojiOnly('haha 😂')).toBe(false)
+    expect(isEmojiOnly('123')).toBe(false)
+    expect(isEmojiOnly('')).toBe(false)
+    expect(isEmojiOnly('😂😂😂😂')).toBe(false)
   })
 })

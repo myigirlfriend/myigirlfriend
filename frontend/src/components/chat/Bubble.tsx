@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { isEmojiOnly } from '@utils/text'
 
 /**
  * Which way the message travelled, from the reader's point of view, which decides its colour and side.
@@ -32,14 +33,20 @@ export default function Bubble({ tone, side = tone === 'received' ? 'start' : 'e
   const end = side === 'end'
   const tail = end ? 'rounded-br-md' : 'rounded-bl-md'
   const text = size === 'lg' ? 'px-5 py-3.5 text-lg' : 'px-4 py-2.5 text-base'
+  // A message that is only an emoji or three is shown large without a bubble, as chat apps do
+  const jumbo = typeof children === 'string' && isEmojiOnly(children)
 
   return (
     <div className={`flex items-end gap-2 ${end ? 'flex-row-reverse' : 'flex-row'} ${className}`}>
       {avatar}
       <div className={`flex min-w-0 max-w-[78%] flex-col gap-1 sm:max-w-md ${end ? 'items-end' : 'items-start'}`}>
-        <div className={`whitespace-pre-wrap break-words rounded-[1.4rem] leading-snug ${tail} ${text} ${TONES[tone]}`}>
-          {children}
-        </div>
+        {jumbo ? (
+          <div className="px-1 text-5xl leading-tight">{children}</div>
+        ) : (
+          <div className={`whitespace-pre-wrap break-words rounded-[1.4rem] leading-snug ${tail} ${text} ${TONES[tone]}`}>
+            {children}
+          </div>
+        )}
         {meta && <span className="px-2 text-[13px] text-brand-muted">{meta}</span>}
       </div>
     </div>

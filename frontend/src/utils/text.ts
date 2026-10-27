@@ -21,3 +21,16 @@ export const traitSentence = (tagline: string | null | undefined): string => {
   if (list.length < 2) return list[0] ?? ''
   return `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`
 }
+
+const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}|\p{Emoji_Modifier}|\p{Regional_Indicator}|‍|️|⃣|\s)+$/u
+
+/**
+ * True for a message that is only 1 to `max` emoji, like "😂" or "❤️🔥". Chat apps show these large, without a bubble.
+ * Compound emoji (👨‍👩‍👧, 👍🏽, flags) count as one.
+ */
+export const isEmojiOnly = (text: string, max = 3): boolean => {
+  const trimmed = text.trim()
+  if (!trimmed || !EMOJI_ONLY.test(trimmed) || !/\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(trimmed)) return false
+  const graphemes = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(trimmed.replace(/\s+/g, ''))]
+  return graphemes.length <= max
+}

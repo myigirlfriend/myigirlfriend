@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MessagesSquare, RefreshCw, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Bubble from '@components/chat/Bubble'
+import EmojiButton from '@components/chat/EmojiButton'
 import Avatar from '@components/common/Avatar'
 import Badge from '@components/common/Badge'
 import Button from '@components/common/Button'
@@ -13,6 +14,7 @@ import { chatApi, operatorApi } from '@services/api'
 import { supabase } from '@services/supabaseClient'
 import { useAuthStore } from '@store/index'
 import { formatTime } from '@utils/formatTime'
+import { insertAtCursor } from '@utils/insertAtCursor'
 import { plural } from '@utils/text'
 import type { Agent, AvatarPersona, Message, QueueConversation } from '@/types'
 
@@ -48,6 +50,7 @@ export default function ConversationsPage() {
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const replyRef = useRef<HTMLInputElement>(null)
   const openedFromLink = useRef(false)
   const activeId = activeConv?.id
 
@@ -328,9 +331,11 @@ export default function ConversationsPage() {
               )}
 
               <form onSubmit={sendReply} className="flex items-end gap-2">
+                <EmojiButton onSelect={(emoji) => setInput((value) => insertAtCursor(replyRef.current, value, emoji))} />
                 <div className="min-w-0 flex-1">
                   <label htmlFor="agent-reply" className="sr-only">Your reply as {activeConv.personaName}</label>
                   <input
+                    ref={replyRef}
                     id="agent-reply"
                     className="input input--compact bg-brand-dark"
                     placeholder={`Reply as ${activeConv.personaName}`}
