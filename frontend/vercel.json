@@ -2,19 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.myigirlfriend.com"
-        }
-      ],
-      "destination": "https://myigirlfriend.com/:path*",
-      "permanent": true
-    }
-  ],
   "rewrites": [
     {
       "source": "/login",
