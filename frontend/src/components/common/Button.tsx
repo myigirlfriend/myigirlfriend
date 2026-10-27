@@ -29,6 +29,14 @@ const SIZES: Record<ButtonSize, string> = {
   lg: 'btn--lg',
 }
 
+/** The classes of a button, for anything that must look like one (see ButtonLink). */
+export const buttonClasses = (
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  fullWidth = false,
+  className = '',
+) => ['btn', VARIANTS[variant], SIZES[size], fullWidth && 'btn--block', className].filter(Boolean).join(' ')
+
 /** The one button. Styles live in the `.btn` family in index.css. */
 export default function Button({
   children,
@@ -42,12 +50,14 @@ export default function Button({
   className = '',
   ...rest
 }: ButtonProps) {
-  const classes = ['btn', VARIANTS[variant], SIZES[size], fullWidth && 'btn--block', className]
-    .filter(Boolean)
-    .join(' ')
-
   return (
-    <button type={type} disabled={disabled || loading} aria-busy={loading || undefined} className={classes} {...rest}>
+    <button
+      type={type}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      className={buttonClasses(variant, size, fullWidth, className)}
+      {...rest}
+    >
       {loading ? (
         <>
           <Spinner size="sm" tone="onColor" />

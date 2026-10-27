@@ -1,7 +1,8 @@
-import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { ArrowLeft, ImagePlus, Trash2, Wand2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '@components/common/Button'
+import Field from '@components/common/Field'
 import PersonaTile from '@components/persona/PersonaTile'
 import { resolvePersona } from '@config/personas'
 import { modelApi } from '@services/api'
@@ -9,12 +10,12 @@ import { errorMessage, plural } from '@utils/text'
 import type { Model, ModelFormValues, ModelPayload } from '@/types'
 
 const COLOURS = [
-  { name: 'Orchid', from: '#9B59B6', to: '#E91E8C' },
-  { name: 'Violet', from: '#8B5CF6', to: '#EC4899' },
-  { name: 'Indigo', from: '#6366F1', to: '#A855F7' },
-  { name: 'Rose', from: '#EC4899', to: '#F43F5E' },
-  { name: 'Sunset', from: '#F59E0B', to: '#EF4444' },
-  { name: 'Lagoon', from: '#06B6D4', to: '#6366F1' },
+  { name: 'Orchid', from: '#9B59B6', to: '#E91E8C' }, // taste-skill-ignore: companion colours admins choose from
+  { name: 'Violet', from: '#8B5CF6', to: '#EC4899' }, // taste-skill-ignore: companion colours admins choose from
+  { name: 'Indigo', from: '#6366F1', to: '#A855F7' }, // taste-skill-ignore: companion colours admins choose from
+  { name: 'Rose', from: '#EC4899', to: '#F43F5E' }, // taste-skill-ignore: companion colours admins choose from
+  { name: 'Sunset', from: '#F59E0B', to: '#EF4444' }, // taste-skill-ignore: companion colours admins choose from
+  { name: 'Lagoon', from: '#06B6D4', to: '#6366F1' }, // taste-skill-ignore: companion colours admins choose from
 ] as const
 
 type TextField = 'name' | 'tagline' | 'description' | 'tone' | 'prompt' | 'previewMessage'
@@ -49,31 +50,6 @@ const draftPrompt = ({ name, tone, description }: ModelFormValues): string =>
   `You are ${name || 'her'}, an AI companion. Your personality is ${tone || 'warm, curious and a little playful'}.
 ${description ? `${description}\n` : ''}You are genuinely interested in the person you are talking to and you remember what they tell you.
 You never say you're an AI unless directly pressed.`
-
-interface FieldProps {
-  id: string
-  label: string
-  help?: string
-  count?: number
-  max?: number
-  error?: string
-  children: ReactNode
-}
-
-function Field({ id, label, help, count, max, error, children }: FieldProps) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="field__label">{label}</label>
-        {max && <span className="text-xs tabular-nums text-brand-muted">{count}/{max}</span>}
-      </div>
-      {children}
-      {error
-        ? <p className="field__error" role="alert">{error}</p>
-        : help && <p className="field__help">{help}</p>}
-    </div>
-  )
-}
 
 interface ModelEditorProps {
   /** The model being edited, or null when adding one */
@@ -156,11 +132,11 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
   const currentImage = photo || fallback?.image || null
 
   return (
-    <form onSubmit={save} className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10" noValidate>
-      <button type="button" onClick={onClose} className="inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-brand-muted transition-colors hover:text-white">
+    <form onSubmit={save} className="mx-auto max-w-6xl px-4 py-8 sm:px-8 sm:py-12" noValidate>
+      <button type="button" onClick={onClose} className="link link--muted inline-flex items-center gap-1.5 text-[15px]">
         <ArrowLeft size={16} aria-hidden="true" /> Models
       </button>
-      <h1 className="mt-3 text-2xl font-extrabold text-white">{model ? `Edit ${model.name}` : 'Add model'}</h1>
+      <h1 className="heading mt-4 text-3xl sm:text-4xl">{model ? `Edit ${model.name}` : 'Add model'}</h1>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-7 lg:max-w-2xl">
@@ -168,14 +144,14 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
           <div>
             <span className="field__label">Photo</span>
             <div className="flex items-center gap-4">
-              <div className="relative h-28 w-[84px] shrink-0 overflow-hidden rounded-xl border border-brand-border bg-brand-surface">
+              <div className="relative h-28 w-[84px] shrink-0 overflow-hidden rounded-2xl bg-brand-surface">
                 {currentImage
                   ? <img src={currentImage} alt="" className="h-full w-full object-cover object-top" />
                   : <div className="flex h-full w-full items-center justify-center text-brand-muted"><ImagePlus size={22} aria-hidden="true" /></div>}
               </div>
               <div>
                 <input ref={fileRef} type="file" accept={PHOTO_TYPES.join(',')} onChange={choosePhoto} className="sr-only" id="model-photo" tabIndex={-1} />
-                <Button variant="ghost" size="sm" onClick={() => fileRef.current?.click()}>
+                <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
                   <ImagePlus size={16} aria-hidden="true" /> {currentImage ? 'Change photo' : 'Choose photo'}
                 </Button>
                 <p className="field__help">A portrait photo with her face near the top works best. JPG, PNG or WebP.</p>
@@ -208,7 +184,7 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, prompt: draftPrompt(f) }))}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-brand-pink hover:underline"
+              className="link link--accent mt-2 inline-flex items-center gap-1.5 text-sm"
             >
               <Wand2 size={15} aria-hidden="true" />
               {form.prompt ? 'Replace with a starting draft' : 'Write a starting draft for me'}
@@ -232,9 +208,9 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
                     onChange={() => setForm((f) => ({ ...f, gradientFrom: c.from, gradientTo: c.to }))}
                   />
                   <span
-                    className="block h-9 w-14 rounded-xl ring-offset-2 ring-offset-brand-dark peer-checked:ring-2 peer-checked:ring-white
+                    className="block h-10 w-14 rounded-full ring-offset-2 ring-offset-brand-dark peer-checked:ring-2 peer-checked:ring-brand-text
                                peer-focus-visible:ring-2 peer-focus-visible:ring-brand-pink"
-                    style={{ backgroundImage: `linear-gradient(135deg, ${c.from}, ${c.to})` }}
+                    style={{ backgroundColor: c.to }}
                   />
                   <span className="sr-only">{c.name}</span>
                 </label>
@@ -244,16 +220,16 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
           </fieldset>
 
           {/* Visibility */}
-          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-brand-border p-4">
+          <label className="surface flex cursor-pointer items-start gap-3 p-5">
             <input
               type="checkbox" className="peer sr-only" checked={form.isActive}
               onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
             />
-            <span className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-zinc-700 transition-colors peer-checked:bg-brand-pink
+            <span className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-brand-raised transition-colors peer-checked:bg-brand-rose
                              peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-pink
                              after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-5" />
             <span>
-              <span className="block text-sm font-bold text-white">Shown to members</span>
+              <span className="block text-base font-bold text-brand-text">Shown to members</span>
               <span className="block text-sm text-brand-muted">
                 {form.isActive ? 'Members can find her and start chatting.' : 'Hidden. Chats that already exist keep working.'}
               </span>
@@ -261,14 +237,14 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
           </label>
 
           {saveError && (
-            <p className="rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm font-semibold text-red-400" role="alert">
+            <p className="rounded-2xl bg-red-400/15 px-4 py-3 text-base font-semibold text-red-300" role="alert">
               {saveError}
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 border-t border-brand-border pt-6">
+          <div className="flex flex-wrap items-center gap-3 pt-4">
             <Button type="submit" size="sm" disabled={saving}>{saving ? 'Saving…' : 'Save model'}</Button>
-            <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={onClose} disabled={saving}>Cancel</Button>
 
             {model && (
               <div className="ml-auto">
@@ -277,13 +253,13 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
                     She has {plural(model.chats, 'chat')}, so she can be hidden but not deleted.
                   </span>
                 ) : confirmDelete ? (
-                  <span className="flex items-center gap-2 text-sm text-white">
+                  <span className="flex items-center gap-2 text-sm text-brand-text">
                     Delete {model.name} for good?
                     <Button variant="danger" size="xs" onClick={remove} disabled={saving}>Delete</Button>
-                    <Button variant="ghost" size="xs" onClick={() => setConfirmDelete(false)}>Keep</Button>
+                    <Button variant="secondary" size="xs" onClick={() => setConfirmDelete(false)}>Keep</Button>
                   </span>
                 ) : (
-                  <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex items-center gap-1.5 rounded-lg text-sm font-bold text-red-400 hover:underline">
+                  <button type="button" onClick={() => setConfirmDelete(true)} className="inline-flex items-center gap-1.5 rounded text-sm font-bold text-red-300 underline-offset-4 hover:underline">
                     <Trash2 size={15} aria-hidden="true" /> Delete model
                   </button>
                 )}

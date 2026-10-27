@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import GoogleButton from '@components/auth/GoogleButton'
 import OrDivider from '@components/auth/OrDivider'
 import Button from '@components/common/Button'
+import Field from '@components/common/Field'
 import PasswordInput from '@components/common/PasswordInput'
 import AuthLayout from '@components/layout/AuthLayout'
 import { useAuth } from '@hooks/useAuth'
@@ -20,39 +21,35 @@ export default function LoginPage() {
     try {
       await login(form.email, form.password)
     } catch (err) {
-      toast.error(errorMessage(err, 'Could not sign you in. Try again.'))
+      toast.error(errorMessage(err, 'Could not sign you in. Check your email and password, then try again.'))
     } finally { setLoading(false) }
   }
 
   return (
-    <AuthLayout title="Welcome back" tabTitle="Sign in" subtitle="She missed you.">
+    <AuthLayout title="Welcome back" tabTitle="Sign in" subtitle="She kept your conversation where you left it.">
       <GoogleButton label="Continue with Google" />
       <OrDivider />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="login-email" className="sr-only">Email</label>
-          <input id="login-email" className="input" type="email" placeholder="Email" autoComplete="email"
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Field id="login-email" label="Email">
+          <input id="login-email" className="input" type="email" autoComplete="email" inputMode="email" spellCheck={false}
             value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="login-password" className="sr-only">Password</label>
-          <PasswordInput id="login-password" placeholder="Password" autoComplete="current-password"
+        <Field
+          id="login-password"
+          label="Password"
+          aside={<Link to="/forgot-password" className="link link--muted text-sm">Forgot password?</Link>}
+        >
+          <PasswordInput id="login-password" autoComplete="current-password"
             value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} required />
-          <div className="mt-1.5 text-right">
-            <Link to="/forgot-password" className="rounded text-xs text-brand-muted transition-colors hover:text-white">
-              Forgot password?
-            </Link>
-          </div>
-        </div>
+        </Field>
 
-        <Button type="submit" fullWidth loading={loading}>Sign in</Button>
+        <Button type="submit" fullWidth size="lg" loading={loading} loadingText="Signing in…">Sign in</Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-brand-muted">
-        No account?{' '}
-        <Link to="/register" className="gradient-text rounded font-semibold">Sign up free</Link>
+      <p className="mt-8 text-base text-brand-muted">
+        New here? <Link to="/register" className="link link--accent">Start free</Link>
       </p>
     </AuthLayout>
   )

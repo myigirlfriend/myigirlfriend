@@ -10,7 +10,7 @@ interface SpinnerProps {
 const SIZES: Record<SpinnerSize, string> = { sm: 'h-4 w-4', md: 'h-6 w-6', lg: 'h-10 w-10' }
 
 export default function Spinner({ size = 'md', tone = 'brand', className = '' }: SpinnerProps) {
-  const colors = tone === 'brand' ? 'border-brand-border border-t-brand-purple' : 'border-white/30 border-t-white'
+  const colors = tone === 'brand' ? 'border-white/10 border-t-brand-pink' : 'border-white/30 border-t-white'
   return (
     <span
       aria-hidden="true"

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Calendar, ChevronRight, Clock, Crown, Flame, Heart, LogOut, MessageCircle, Settings, Star, Zap } from 'lucide-react'
+import { ChevronRight, LogOut } from 'lucide-react'
+import ConversationRow from '@components/chat/ConversationRow'
 import Avatar from '@components/common/Avatar'
-import Badge from '@components/common/Badge'
-import IconButton from '@components/common/IconButton'
+import Button from '@components/common/Button'
+import ButtonLink from '@components/common/ButtonLink'
+import Stat from '@components/common/Stat'
 import MemberPage from '@components/layout/MemberPage'
-import GeneratedAvatar from '@components/profile/GeneratedAvatar'
-import StatCard from '@components/profile/StatCard'
 import { getPersonaById } from '@config/personas'
 import { planLabel } from '@config/plans'
 import { useAuth } from '@hooks/useAuth'
@@ -16,9 +16,9 @@ import { profileApi } from '@services/api'
 import { plural } from '@utils/text'
 import type { ProfileStats } from '@/types'
 
-const SETTINGS_LINKS = [
+const ACCOUNT_LINKS = [
   { label: 'Change password', to: '/forgot-password' },
-  { label: 'Subscription and billing', to: '/subscription' },
+  { label: 'Plan and billing', to: '/subscription' },
   { label: 'Privacy Policy', to: '/privacy' },
   { label: 'Terms of Service', to: '/terms' },
 ]
@@ -31,7 +31,6 @@ export default function ProfilePage() {
   const { openConversation } = usePersona()
   const [stats, setStats] = useState<ProfileStats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     profileApi.stats()
@@ -42,151 +41,121 @@ export default function ProfilePage() {
 
   const recent = stats?.recentConversations ?? []
 
-  // Favourite companion — the conversation with the most messages
+  // Favourite companion: the conversation with the most messages
   const favourite = recent.reduce<(typeof recent)[number] | null>(
     (top, c) => (c.messageCount > (top?.messageCount ?? 0) ? c : top), null)
   const favouritePersona = favourite ? getPersonaById(favourite.personaName) : null
 
   const joined = user?.createdAt ? new Date(user.createdAt) : null
   const daysActive = joined ? Math.max(1, Math.floor((Date.now() - joined.getTime()) / MS_PER_DAY)) : 1
-  const memberSince = joined?.toLocaleDateString([], { month: 'long', year: 'numeric' })
+  const memberSince = joined?.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
 
   return (
     <MemberPage
-      title="Profile"
+      tabTitle="Profile"
+      title={user?.name || 'Your profile'}
+      subtitle={<>{user?.email}{memberSince && <><br />With us since {memberSince}</>}</>}
       actions={
-        <>
-          <IconButton label="Settings" variant="surface" aria-expanded={showSettings} onClick={() => setShowSettings((open) => !open)}>
-            <Settings size={16} />
-          </IconButton>
-          <IconButton label="Sign out" variant="surface" onClick={logout}>
-            <LogOut size={16} />
-          </IconButton>
-        </>
+        <Button variant="ghost" size="sm" onClick={logout}>
+          <LogOut size={16} aria-hidden="true" /> Sign out
+        </Button>
       }
     >
-      <div className="space-y-3">
-        {showSettings && (
-          <nav aria-label="Settings" className="surface overflow-hidden">
-            {SETTINGS_LINKS.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="flex items-center justify-between border-b border-white/5 px-4 py-3 text-sm text-brand-muted transition-colors last:border-0 hover:bg-white/5 hover:text-white"
-              >
-                {link.label}
-                <ChevronRight size={14} aria-hidden="true" />
-              </Link>
-            ))}
-          </nav>
-        )}
-
-        {/* Profile hero card */}
-        <section className="surface surface--accent rounded-3xl p-5">
-          <div className="flex items-center gap-4">
-            <GeneratedAvatar name={user?.name} size={72} />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-xl font-extrabold leading-tight text-white">{user?.name}</div>
-              <div className="mt-1 truncate text-xs text-brand-muted">{user?.email}</div>
-              {memberSince && (
-                <div className="mt-2 flex items-center gap-1.5 text-xs text-brand-muted">
-                  <Calendar size={11} className="text-brand-purple" aria-hidden="true" />
-                  Since {memberSince}
-                </div>
-              )}
-            </div>
+      <div className="space-y-12">
+        {/* Plan */}
+        <section aria-labelledby="plan-title" className={`flex flex-wrap items-center gap-x-6 gap-y-4 rounded-3xl p-6 sm:p-8 ${isPaid ? 'bg-brand-plum-3 text-white' : 'bg-brand-plum text-white'}`}>
+          <div className="min-w-0 flex-1">
+            <h2 id="plan-title" className="text-3xl font-black tracking-tight">{isPaid ? `${planLabel(plan)} plan` : 'Free plan'}</h2>
+            <p className="mt-1.5 text-base font-semibold opacity-85">
+              {isPaid ? 'Unlimited messages are on.' : 'Upgrade for unlimited messages and a companion who remembers more.'}
+            </p>
           </div>
-
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm font-bold text-white">
-              <Crown size={15} className={isPaid ? 'text-amber-300' : 'text-brand-muted'} aria-hidden="true" />
-              {isPaid ? `${planLabel(plan)} plan` : 'Free plan'}
-            </div>
-            {isPaid ? (
-              <Badge variant="success">Active</Badge>
-            ) : (
-              <Link to="/subscription" className="btn btn--primary btn--xs">
-                <Zap size={12} aria-hidden="true" />
-                Upgrade
-              </Link>
-            )}
-          </div>
+          {isPaid
+            ? <ButtonLink to="/subscription" variant="secondary">Manage plan</ButtonLink>
+            : <ButtonLink to="/subscription">See plans</ButtonLink>}
         </section>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Numbers */}
+        <section aria-label="Your numbers" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {loading ? (
-            Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-24 rounded-2xl" />)
+            Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton h-[7.5rem] rounded-3xl" />)
           ) : (
             <>
-              <StatCard icon={MessageCircle} value={stats?.totalMessages || 0} label="Messages" tone="bg-brand-purple/15 text-brand-purple" />
-              <StatCard icon={Heart} value={stats?.totalConversations || 0} label="Companions" tone="bg-brand-pink/15 text-brand-pink" />
-              <StatCard icon={Flame} value={daysActive} label="Days active" tone="bg-amber-400/15 text-amber-300" />
+              <Stat label="Messages" value={stats?.totalMessages || 0} />
+              <Stat label="Conversations" value={stats?.totalConversations || 0} />
+              <Stat label="Days with us" value={daysActive} />
             </>
           )}
-        </div>
+        </section>
 
         {/* Favourite companion */}
         {favourite && favouritePersona && (
-          <section className="surface p-4">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-white">
-              <Star size={14} className="text-amber-300" aria-hidden="true" />
-              Favourite companion
-            </h2>
+          <section aria-labelledby="favourite-title">
+            <h2 id="favourite-title" className="heading mb-4 text-2xl">You talk to her most</h2>
             <button
               type="button"
               onClick={() => openConversation(favourite.id, favouritePersona)}
-              className="flex w-full items-center gap-3 rounded-xl text-left transition-opacity hover:opacity-80"
+              className="surface group flex w-full items-center gap-5 overflow-hidden p-0 text-left transition-colors duration-150 hover:bg-brand-card"
             >
-              <Avatar persona={favouritePersona} size="lg" />
-              <span className="min-w-0 flex-1">
-                <span className="block font-bold text-white">{favouritePersona.name}</span>
-                <span className="block truncate text-xs text-brand-muted">{favouritePersona.tagline}</span>
-                <span className="mt-0.5 block text-xs text-brand-muted">{plural(favourite.messageCount, 'message')} together</span>
+              <span className="relative block aspect-[4/5] w-28 shrink-0 bg-brand-card sm:w-36">
+                {favouritePersona.image
+                  ? <img src={favouritePersona.image} alt="" className="absolute inset-0 h-full w-full object-cover object-top" />
+                  : <Avatar persona={favouritePersona} size="xl" className="m-4" />}
               </span>
-              <ChevronRight size={16} className="shrink-0 text-brand-muted" aria-hidden="true" />
+              <span className="min-w-0 flex-1 py-5">
+                <span className="heading block text-3xl">{favouritePersona.name}</span>
+                <span className="mt-1.5 block text-base text-brand-muted">{plural(favourite.messageCount, 'message')} together</span>
+                <span className="mt-4 inline-flex items-center gap-1 text-base font-extrabold text-brand-pink">
+                  Open chat <ChevronRight size={18} aria-hidden="true" />
+                </span>
+              </span>
             </button>
           </section>
         )}
 
         {/* Recent chats */}
         {recent.length > 0 && (
-          <section className="surface overflow-hidden">
-            <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
-              <h2 className="flex items-center gap-2 text-sm font-bold text-white">
-                <Clock size={14} className="text-brand-purple" aria-hidden="true" />
-                Recent chats
-              </h2>
-              <Link to="/chat" className="rounded text-xs font-semibold text-brand-pink hover:underline">See all</Link>
+          <section aria-labelledby="recent-title">
+            <div className="mb-4 flex items-baseline justify-between gap-4">
+              <h2 id="recent-title" className="heading text-2xl">Recent chats</h2>
+              <Link to="/chat" className="link link--accent text-base">All chats</Link>
             </div>
-
-            <ul className="divide-y divide-white/5">
+            <ul className="space-y-2">
               {recent.map((conversation) => {
                 const persona = getPersonaById(conversation.personaName)
                 const name = persona?.name || conversation.personaName || 'Unknown'
-
                 return (
                   <li key={conversation.id}>
-                    <button
-                      type="button"
+                    <ConversationRow
+                      persona={persona ?? { name }}
+                      title={name}
+                      preview={plural(conversation.messageCount, 'message')}
+                      meta={conversation.date}
                       onClick={() => openConversation(conversation.id, persona)}
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
-                    >
-                      <Avatar persona={persona ?? { name }} online />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-white">{name}</span>
-                        <span className="block text-xs text-brand-muted">
-                          {plural(conversation.messageCount, 'message')} · {conversation.date}
-                        </span>
-                      </span>
-                      <ChevronRight size={14} className="shrink-0 text-brand-muted" aria-hidden="true" />
-                    </button>
+                    />
                   </li>
                 )
               })}
             </ul>
           </section>
         )}
+
+        {/* Account */}
+        <section aria-labelledby="account-title">
+          <h2 id="account-title" className="heading mb-4 text-2xl">Account</h2>
+          <nav aria-label="Account" className="surface overflow-hidden">
+            {ACCOUNT_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="flex items-center justify-between px-5 py-4 text-base font-bold text-brand-text transition-colors duration-150 hover:bg-brand-card"
+              >
+                {link.label}
+                <ChevronRight size={18} className="text-brand-muted" aria-hidden="true" />
+              </Link>
+            ))}
+          </nav>
+        </section>
       </div>
     </MemberPage>
   )

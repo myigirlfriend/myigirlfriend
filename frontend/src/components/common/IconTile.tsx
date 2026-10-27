@@ -8,17 +8,17 @@ interface IconTileProps {
 
 const SIZES = {
   md: { box: 'h-14 w-14', icon: 26 },
-  lg: { box: 'h-16 w-16', icon: 28 },
+  lg: { box: 'h-16 w-16', icon: 30 },
 } as const
 
-/** The gradient square that heads a page or an empty state. */
+/** The plum disc with a pink icon that heads an empty state or a status screen. */
 export default function IconTile({ icon: Icon, size = 'md', className = '' }: IconTileProps) {
   return (
     <div
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-brand ${SIZES[size].box} ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-plum text-brand-pink ${SIZES[size].box} ${className}`}
     >
-      <Icon size={SIZES[size].icon} />
+      <Icon size={SIZES[size].icon} strokeWidth={2.2} />
     </div>
   )
 }

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, Send } from 'lucide-react'
+import { ArrowUp, ChevronLeft } from 'lucide-react'
 import MessageBubble from '@components/chat/MessageBubble'
 import TypingIndicator from '@components/chat/TypingIndicator'
 import UpsellModal from '@components/chat/UpsellModal'
@@ -11,6 +11,7 @@ import Timer from '@components/common/Timer'
 import { useChat } from '@hooks/useChat'
 import { usePageTitle } from '@hooks/usePageTitle'
 import { usePersonaStore } from '@store/index'
+import { traitSentence } from '@utils/text'
 
 export default function ChatPage() {
   const { conversationId } = useParams()
@@ -19,98 +20,108 @@ export default function ChatPage() {
   const { messages, isTyping, sendMessage } = useChat(conversationId)
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   usePageTitle(activePersona ? `Chat with ${activePersona.name}` : 'Chat')
 
   useEffect(() => { if (!activePersona) navigate('/personas') }, [activePersona, navigate])
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, isTyping])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }) }, [messages, isTyping])
 
-  const handleSend = (e: FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    sendMessage(input.trim())
+  // The composer grows with the message, up to a few lines
+  useEffect(() => {
+    const el = inputRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  }, [input])
+
+  const send = () => {
+    const text = input.trim()
+    if (!text) return
+    sendMessage(text)
     setInput('')
     inputRef.current?.focus()
   }
 
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    send()
+  }
+
+  // Enter sends; Shift+Enter starts a new line
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault()
+      send()
+    }
+  }
+
   if (!activePersona) return null
 
-  // Her own colours tint the banner tagline and the send button
-  const personaGradient = `linear-gradient(135deg, ${activePersona.gradientFrom}, ${activePersona.gradientTo})`
   const canSend = input.trim().length > 0
 
   return (
     <div className="flex h-[100dvh] flex-col bg-brand-dark">
       {/* ── Header ── */}
-      <header className="shrink-0 border-b border-brand-border bg-brand-surface">
-        <div className="flex items-center gap-3 px-4 py-2.5">
-          <IconButton label="Back to companions" onClick={() => navigate('/personas')} className="-ml-1.5">
-            <ChevronLeft size={22} />
+      <header className="shrink-0 bg-brand-dark pt-[env(safe-area-inset-top,0px)]">
+        <div className="mx-auto flex h-16 max-w-3xl items-center gap-3 px-3 sm:px-5">
+          <IconButton label="Back to chats" onClick={() => navigate('/chat')}>
+            <ChevronLeft size={24} />
           </IconButton>
 
           <Avatar persona={activePersona} online />
 
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-sm font-bold leading-tight text-white">{activePersona.name}</h1>
-            <p className="text-xs font-medium text-emerald-300">Online now</p>
+            <h1 className="truncate text-lg font-extrabold leading-tight text-brand-text">{activePersona.name}</h1>
+            <p className="text-sm font-semibold text-emerald-300">Online</p>
           </div>
 
           <Timer />
         </div>
-
-        {/* Persona banner — full width photo strip */}
-        {activePersona.image && (
-          <div className="relative h-32 overflow-hidden">
-            <img src={activePersona.image} alt="" className="h-full w-full object-cover object-top" />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent" />
-            <div className="absolute inset-x-4 bottom-3">
-              <div className="text-xl font-extrabold text-white">{activePersona.name}</div>
-              <div className="bg-clip-text text-sm font-semibold text-transparent" style={{ backgroundImage: personaGradient }}>
-                {activePersona.tagline}
-              </div>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* ── Messages ── */}
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-6">
-        {messages.length === 0 && (
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto max-w-3xl space-y-3 px-4 pb-6 pt-2 sm:px-6" role="log" aria-live="polite" aria-label={`Conversation with ${activePersona.name}`}>
+          {/* Her profile opens every conversation */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center pt-8 text-center"
+            className="flex flex-col items-center pb-6 pt-8 text-center"
           >
-            <Avatar persona={activePersona} size="xl" className="mb-4" />
-            <div className="mb-1 text-lg font-bold text-white">{activePersona.name}</div>
+            <Avatar persona={activePersona} size="xl" />
+            <h2 className="heading mt-4 text-3xl">{activePersona.name}</h2>
+            {activePersona.tagline && <p className="mt-1.5 text-base text-brand-muted">{traitSentence(activePersona.tagline)}</p>}
             {activePersona.previewMessage && (
-              <p className="max-w-xs text-sm italic text-brand-muted">"{activePersona.previewMessage}"</p>
+              <p className="mt-4 max-w-sm text-lg font-semibold leading-snug text-brand-text">“{activePersona.previewMessage}”</p>
             )}
-            <p className="mt-3 text-xs text-brand-muted">Say something to start the conversation</p>
+            {messages.length === 0 && <p className="mt-3 text-sm text-brand-muted">Send a message to start the conversation.</p>}
           </motion.div>
-        )}
 
-        <AnimatePresence initial={false}>
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} persona={activePersona} />
-          ))}
-        </AnimatePresence>
+          <AnimatePresence initial={false}>
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} persona={activePersona} />
+            ))}
+          </AnimatePresence>
 
-        {isTyping && <TypingIndicator persona={activePersona} />}
-        <div ref={bottomRef} />
-      </div>
+          {isTyping && <TypingIndicator persona={activePersona} />}
+          <div ref={bottomRef} />
+        </div>
+      </main>
 
-      {/* ── Input bar. The bottom padding keeps it clear of the tab bar. ── */}
-      <div className="shrink-0 border-t border-brand-border bg-brand-surface px-4 pb-20 pt-3">
-        <form onSubmit={handleSend} className="flex items-center gap-3">
+      {/* ── Composer ── */}
+      <div className="shrink-0 bg-brand-dark pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+        <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl items-end gap-2 px-3 sm:px-5">
           <label htmlFor="chat-message" className="sr-only">Message {activePersona.name}</label>
-          <input
+          <textarea
             id="chat-message"
             ref={inputRef}
-            className="input input--compact flex-1 text-sm"
+            rows={1}
+            className="input min-h-[3rem] flex-1 resize-none rounded-[1.5rem] py-3 leading-snug"
             placeholder={`Message ${activePersona.name}…`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            enterKeyHint="send"
             autoComplete="off"
             autoFocus
           />
@@ -119,10 +130,9 @@ export default function ChatPage() {
             type="submit"
             disabled={!canSend}
             aria-label="Send message"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-border text-white transition active:scale-95 disabled:opacity-40"
-            style={canSend ? { backgroundImage: personaGradient } : undefined}
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-rose text-white transition-[transform,background-color,opacity] duration-150 hover:bg-brand-pink active:scale-95 disabled:bg-brand-card disabled:text-brand-subtle"
           >
-            <Send size={16} aria-hidden="true" />
+            <ArrowUp size={22} strokeWidth={2.75} aria-hidden="true" />
           </button>
         </form>
       </div>

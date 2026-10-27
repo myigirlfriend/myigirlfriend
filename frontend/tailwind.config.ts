@@ -11,9 +11,14 @@ export default {
         brand: {
           purple: color('purple'),
           pink: color('pink'),
+          rose: color('rose'),
+          plum: color('plum'),
+          'plum-2': color('plum-2'),
+          'plum-3': color('plum-3'),
           dark: color('dark'),
           surface: color('surface'),
           card: color('card'),
+          raised: color('raised'),
           border: color('border'),
           muted: color('muted'),
           subtle: color('subtle'),
@@ -25,15 +30,6 @@ export default {
       },
       backgroundImage: {
         'brand-gradient': 'var(--gradient-brand)',
-        'brand-gradient-soft': 'var(--gradient-brand-soft)',
-        'page-glow': 'var(--gradient-page)',
-      },
-      boxShadow: {
-        'brand': 'var(--shadow-brand)',
-        'brand-lg': 'var(--shadow-brand-lg)',
-      },
-      animation: {
-        'pulse-slow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

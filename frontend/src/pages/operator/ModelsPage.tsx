@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, Heart, Plus } from 'lucide-react'
 import Button from '@components/common/Button'
+import EmptyState from '@components/common/EmptyState'
 import LoadError from '@components/common/LoadError'
 import ModelEditor from '@components/operator/ModelEditor'
+import OperatorPage from '@components/operator/OperatorPage'
 import PersonaTile from '@components/persona/PersonaTile'
 import { resolvePersona } from '@config/personas'
 import { modelApi } from '@services/api'
@@ -48,41 +50,38 @@ export default function ModelsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-white">Models</h1>
-          <p className="mt-1 text-sm text-brand-muted">The companions your members can chat with. Select one to edit her.</p>
-        </div>
+    <OperatorPage
+      title="Models"
+      subtitle="The companions your members can chat with. Select one to edit her."
+      actions={
         <Button size="sm" onClick={() => setEditing('new')}>
           <Plus size={16} aria-hidden="true" /> Add model
         </Button>
-      </div>
-
+      }
+    >
       {failed ? (
-        <div className="mt-8">
-          <LoadError
-            title="The models could not be loaded."
-            description="Check that the server is running, then try again."
-            onRetry={load}
-          />
-        </div>
+        <LoadError
+          title="The models could not be loaded."
+          description="Check that the server is running, then try again."
+          onRetry={load}
+        />
       ) : !models ? (
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4" aria-busy="true">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton aspect-[3/4] rounded-2xl" />)}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton aspect-[4/5] rounded-3xl" />)}
         </div>
       ) : models.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-brand-border px-6 py-14 text-center">
-          <Heart size={28} className="mx-auto text-brand-muted" aria-hidden="true" />
-          <p className="mt-3 font-bold text-white">No models yet</p>
-          <p className="mt-1 text-sm text-brand-muted">Add your first model so members have someone to talk to.</p>
-        </div>
+        <EmptyState
+          icon={Heart}
+          title="No models yet"
+          description="Add your first model so members have someone to talk to."
+          action={<Button onClick={() => setEditing('new')}><Plus size={16} aria-hidden="true" /> Add model</Button>}
+        />
       ) : (
-        <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
           {models.map((model) => (
             <li key={model.id}>
               <PersonaTile persona={resolvePersona(model)} dimmed={!model.isActive} onClick={() => setEditing(model)} />
-              <div className="mt-2 flex items-center justify-between gap-2 px-1 text-sm">
+              <div className="mt-2 flex items-center justify-between gap-2 px-1 text-[15px]">
                 <span className={`inline-flex items-center gap-1.5 font-bold ${model.isActive ? 'text-emerald-300' : 'text-brand-muted'}`}>
                   {model.isActive ? <Eye size={15} aria-hidden="true" /> : <EyeOff size={15} aria-hidden="true" />}
                   {model.isActive ? 'Shown' : 'Hidden'}
@@ -93,6 +92,6 @@ export default function ModelsPage() {
           ))}
         </ul>
       )}
-    </div>
+    </OperatorPage>
   )
 }

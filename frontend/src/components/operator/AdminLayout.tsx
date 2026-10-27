@@ -36,7 +36,7 @@ function Rail({ operator, onSignOut }: RailProps) {
     <div className="flex h-full flex-col">
       <div className="px-5 pb-6 pt-6">
         <Logo size="sm" />
-        <div className="mt-1.5 text-xs text-brand-muted">{isAdmin ? 'Admin dashboard' : 'Agent dashboard'}</div>
+        <div className="mt-2 text-sm font-semibold text-brand-muted">{isAdmin ? 'Admin dashboard' : 'Agent dashboard'}</div>
       </div>
 
       <nav aria-label="Dashboard sections" className="flex-1 space-y-1 px-3">
@@ -46,14 +46,13 @@ function Rail({ operator, onSignOut }: RailProps) {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-colors duration-150
-               ${isActive ? 'bg-white/[0.06] text-white' : 'text-brand-muted hover:bg-white/[0.03] hover:text-white'}`
+              `flex items-center gap-3 rounded-full px-4 py-2.5 text-[15px] font-extrabold transition-colors duration-150
+               ${isActive ? 'bg-brand-card text-brand-text' : 'text-brand-muted hover:text-brand-text'}`
             }
           >
             {({ isActive }) => (
               <>
-                {isActive && <span className="absolute bottom-2 left-0 top-2 w-[3px] rounded-full bg-brand-gradient" />}
-                <Icon size={18} strokeWidth={2} aria-hidden="true" />
+                <Icon size={18} strokeWidth={2.2} className={isActive ? 'text-brand-pink' : ''} aria-hidden="true" />
                 {label}
               </>
             )}
@@ -63,12 +62,12 @@ function Rail({ operator, onSignOut }: RailProps) {
 
       <AgentHours />
 
-      <div className="flex items-center justify-between gap-2 border-t border-brand-border px-5 py-4">
+      <div className="flex items-center justify-between gap-2 px-5 py-4">
         <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-white">{operator?.name}</div>
-          <div className="truncate text-xs text-brand-muted">{operator?.email}</div>
+          <div className="truncate text-[15px] font-bold text-brand-text">{operator?.name}</div>
+          <div className="truncate text-sm text-brand-muted">{operator?.email}</div>
         </div>
-        <IconButton label="Sign out" onClick={onSignOut} className="p-2">
+        <IconButton label="Sign out" onClick={onSignOut}>
           <LogOut size={18} aria-hidden="true" />
         </IconButton>
       </div>
@@ -91,15 +90,15 @@ export default function AdminLayout() {
   return (
     <div className="flex h-[100dvh] bg-brand-dark text-brand-text">
       {/* Desktop rail */}
-      <aside className="hidden w-60 shrink-0 border-r border-brand-border bg-brand-surface lg:block">
+      <aside className="hidden w-64 shrink-0 bg-brand-surface lg:block">
         <Rail operator={operator} onSignOut={clearAuth} />
       </aside>
 
       {/* Mobile drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setMenuOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64 max-w-[85vw] border-r border-brand-border bg-brand-surface">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setMenuOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-brand-surface">
             <Rail operator={operator} onSignOut={clearAuth} />
           </aside>
         </div>
@@ -107,16 +106,16 @@ export default function AdminLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
-        <div className="flex h-14 shrink-0 items-center gap-3 border-b border-brand-border bg-brand-surface px-3 lg:hidden">
+        <div className="flex h-14 shrink-0 items-center gap-2 bg-brand-surface px-2 lg:hidden">
           <IconButton
             label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="p-2 text-white"
+            className="text-brand-text"
           >
             {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </IconButton>
-          <div className="text-sm font-extrabold text-white">{current?.label || 'Dashboard'}</div>
+          <div className="text-base font-extrabold text-brand-text">{current?.label || 'Dashboard'}</div>
         </div>
 
         <main className="min-h-0 flex-1 overflow-y-auto">

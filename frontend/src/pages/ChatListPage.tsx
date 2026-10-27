@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Plus } from 'lucide-react'
-import Avatar from '@components/common/Avatar'
-import Button from '@components/common/Button'
+import ConversationRow from '@components/chat/ConversationRow'
+import ButtonLink from '@components/common/ButtonLink'
 import EmptyState from '@components/common/EmptyState'
 import IconButton from '@components/common/IconButton'
 import MemberPage from '@components/layout/MemberPage'
@@ -31,49 +31,40 @@ export default function ChatListPage() {
 
   return (
     <MemberPage
-      title="Messages"
-      subtitle={conversations === null ? 'Loading…' : count > 0 ? plural(count, 'conversation') : 'No messages yet'}
+      title="Chats"
+      subtitle={conversations === null ? 'Loading your conversations…' : count > 0 ? plural(count, 'conversation') : undefined}
       actions={
-        <IconButton label="Start a new chat" variant="gradient" onClick={() => navigate('/personas')}>
-          <Plus size={18} />
+        <IconButton label="Start a new chat" variant="accent" onClick={() => navigate('/personas')}>
+          <Plus size={20} strokeWidth={2.5} />
         </IconButton>
       }
     >
       {conversations === null ? (
         <div className="space-y-2" aria-busy="true">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-[4.5rem] rounded-2xl" />)}
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-[5.25rem]" />)}
         </div>
       ) : conversations.length === 0 ? (
         <EmptyState
           icon={MessageCircle}
-          title="No messages yet"
-          description="Start a conversation with one of the girls."
-          action={<Button onClick={() => navigate('/personas')}>Meet the girls</Button>}
+          title="No chats yet"
+          description="Pick a companion and send her the first message. Your conversations will be waiting here."
+          action={<ButtonLink to="/personas">Choose a companion</ButtonLink>}
         />
       ) : (
-        <ul className="surface divide-y divide-white/5 overflow-hidden">
+        <ul className="space-y-2">
           {conversations.map((conversation) => {
             const persona = getPersonaById(conversation.personaId)
             if (!persona) return null
 
             return (
               <li key={conversation.id}>
-                <button
-                  type="button"
+                <ConversationRow
+                  persona={persona}
+                  preview={conversation.lastMessage || persona.previewMessage}
+                  quiet={!conversation.lastMessage}
+                  meta={timeAgo(conversation.lastMessageAt)}
                   onClick={() => openConversation(conversation.id, persona)}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/5"
-                >
-                  <Avatar persona={persona} size="lg" online />
-                  <span className="min-w-0 flex-1">
-                    <span className="mb-0.5 flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-bold text-white">{persona.name}</span>
-                      <span className="shrink-0 text-xs text-brand-muted">{timeAgo(conversation.lastMessageAt)}</span>
-                    </span>
-                    <span className={`block truncate text-xs leading-relaxed text-brand-muted ${conversation.lastMessage ? '' : 'italic'}`}>
-                      {conversation.lastMessage || persona.previewMessage}
-                    </span>
-                  </span>
-                </button>
+                />
               </li>
             )
           })}

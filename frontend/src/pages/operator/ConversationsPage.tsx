@@ -2,9 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MessagesSquare, RefreshCw, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Bubble from '@components/chat/Bubble'
 import Avatar from '@components/common/Avatar'
+import Badge from '@components/common/Badge'
 import Button from '@components/common/Button'
 import IconButton from '@components/common/IconButton'
+import SegmentedControl from '@components/common/SegmentedControl'
 import { getPersonaById } from '@config/personas'
 import { chatApi, operatorApi } from '@services/api'
 import { supabase } from '@services/supabaseClient'
@@ -170,31 +173,18 @@ export default function ConversationsPage() {
   return (
     <div className="flex h-full">
       {/* Conversation list */}
-      <div className={`${activeConv ? 'hidden md:flex' : 'flex'} w-full shrink-0 flex-col border-r border-brand-border md:w-80`}>
-        <div className="shrink-0 border-b border-brand-border px-4 pb-3 pt-5">
+      <div className={`${activeConv ? 'hidden md:flex' : 'flex'} w-full shrink-0 flex-col bg-brand-surface md:w-80`}>
+        <div className="shrink-0 px-4 pb-3 pt-6">
           <div className="flex items-center justify-between gap-2">
-            <h1 className="text-xl font-extrabold text-white">Conversations</h1>
-            <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${live ? 'text-emerald-300' : 'text-brand-muted'}`} role="status">
+            <h1 className="heading text-2xl">Conversations</h1>
+            <span className={`inline-flex items-center gap-1.5 text-sm font-bold ${live ? 'text-emerald-300' : 'text-brand-muted'}`} role="status">
               <span className={`h-2 w-2 rounded-full ${live ? 'bg-emerald-400' : 'bg-zinc-600'}`} aria-hidden="true" />
               {live ? 'Live' : 'Connecting'}
             </span>
           </div>
 
           {isAdmin && (
-            <div className="mt-3 flex gap-1 rounded-xl bg-brand-surface p-1" role="group" aria-label="Filter conversations">
-              {FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFilter(f.id)}
-                  aria-pressed={filter === f.id}
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-bold transition-colors
-                    ${filter === f.id ? 'bg-white/10 text-white' : 'text-brand-muted hover:text-white'}`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl label="Filter conversations" options={FILTERS} value={filter} onChange={setFilter} className="mt-4 bg-brand-dark" />
           )}
         </div>
 
@@ -204,7 +194,7 @@ export default function ConversationsPage() {
               {Array.from({ length: 5 }).map((_, i) => <div key={i} className="skeleton h-14" />)}
             </div>
           ) : visible.length === 0 ? (
-            <p className="px-3 py-6 text-sm text-brand-muted">{emptyMessage}</p>
+            <p className="px-3 py-6 text-base text-brand-muted">{emptyMessage}</p>
           ) : (
             <ul className="space-y-1">
               {visible.map((conversation) => {
@@ -215,18 +205,18 @@ export default function ConversationsPage() {
                       type="button"
                       onClick={() => openConversation(conversation)}
                       aria-current={selected ? 'true' : undefined}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors
-                        ${selected ? 'bg-white/[0.07]' : 'hover:bg-white/[0.03]'}`}
+                      className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition-colors
+                        ${selected ? 'bg-brand-card' : 'hover:bg-white/[0.04]'}`}
                     >
                       <Avatar persona={personaFor(conversation)} />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-white">{conversation.userName}</span>
-                        <span className="block truncate text-xs text-brand-muted">
+                        <span className="block truncate text-[15px] font-extrabold text-brand-text">{conversation.userName}</span>
+                        <span className="block truncate text-sm text-brand-muted">
                           with {conversation.personaName}, {plural(conversation.messageCount, 'message')}
                         </span>
                       </span>
                       {isAdmin && !conversation.assignedTo && (
-                        <span className="shrink-0 text-xs font-bold text-amber-300">No agent</span>
+                        <Badge variant="warning">No agent</Badge>
                       )}
                     </button>
                   </li>
@@ -242,28 +232,28 @@ export default function ConversationsPage() {
         {!activeConv ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
             <MessagesSquare size={32} className="text-brand-muted" aria-hidden="true" />
-            <p className="text-sm text-brand-muted">Pick a conversation to read it and reply.</p>
+            <p className="text-base text-brand-muted">Pick a conversation to read it and reply.</p>
           </div>
         ) : (
           <>
-            <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-brand-border px-4 py-3">
-              <IconButton label="Back to conversations" onClick={() => setActiveConv(null)} className="text-white md:hidden">
+            <div className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
+              <IconButton label="Back to conversations" onClick={() => setActiveConv(null)} className="text-brand-text md:hidden">
                 <ArrowLeft size={18} aria-hidden="true" />
               </IconButton>
               <Avatar persona={personaFor(activeConv)} />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-bold text-white">{activeConv.userName}</div>
-                <div className="truncate text-xs text-brand-muted">chatting with {activeConv.personaName}</div>
+                <div className="truncate text-base font-extrabold text-brand-text">{activeConv.userName}</div>
+                <div className="truncate text-sm text-brand-muted">chatting with {activeConv.personaName}</div>
               </div>
 
               {isAdmin && (
                 <div className="flex items-center gap-2">
-                  <label htmlFor="assign-agent" className="text-xs font-bold text-brand-muted">Agent</label>
+                  <label htmlFor="assign-agent" className="text-sm font-bold text-brand-muted">Agent</label>
                   <select
                     id="assign-agent"
                     value={activeConv.assignedTo || ''}
                     onChange={(e) => assignConversation(e.target.value)}
-                    className="input input--compact input--sunken w-auto py-1.5 pr-8 text-sm"
+                    className="input input--compact w-auto py-2 pr-8 text-[15px]"
                   >
                     <option value="">Unassigned</option>
                     {agents.map((agent) => (
@@ -283,25 +273,20 @@ export default function ConversationsPage() {
                   <div className="skeleton h-10 w-1/3" />
                 </div>
               ) : messages.length === 0 ? (
-                <p className="py-10 text-center text-sm text-brand-muted">No messages in this chat yet.</p>
+                <p className="py-10 text-center text-base text-brand-muted">No messages in this chat yet.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="mx-auto max-w-3xl space-y-3">
                   {messages.map((message) => {
                     const fromMember = message.sender === 'user'
                     const fromAgent = message.sender === 'operator'
                     return (
-                      <div key={message.id} className={`flex ${fromMember ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed sm:max-w-md ${
-                          fromMember ? 'border border-brand-border bg-brand-card text-brand-text'
-                          : fromAgent ? 'bg-brand-purple text-white'
-                          : 'border border-brand-purple/40 bg-brand-purple/15 text-brand-text'
-                        }`}>
-                          <div className="whitespace-pre-wrap break-words">{message.content}</div>
-                          <div className={`mt-1 text-xs ${fromAgent ? 'text-white/75' : 'text-brand-muted'}`}>
-                            {fromMember ? activeConv.userName : fromAgent ? 'Agent' : 'AI'}, {formatTime(message.created_at)}
-                          </div>
-                        </div>
-                      </div>
+                      <Bubble
+                        key={message.id}
+                        tone={fromMember ? 'received' : fromAgent ? 'agent' : 'sent'}
+                        meta={`${fromMember ? activeConv.userName : fromAgent ? `Agent as ${activeConv.personaName}` : `AI as ${activeConv.personaName}`}, ${formatTime(message.created_at)}`}
+                      >
+                        {message.content}
+                      </Bubble>
                     )
                   })}
                 </div>
@@ -310,31 +295,31 @@ export default function ConversationsPage() {
             </div>
 
             {/* Suggested replies + composer */}
-            <div className="shrink-0 border-t border-brand-border bg-brand-surface px-4 py-3">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-brand-muted">
+            <div className="shrink-0 bg-brand-surface px-4 py-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-brand-muted">
                   {loadingSuggestions ? 'Writing suggestions…' : suggestions.length > 0 ? 'Suggested replies. Select one to edit it before sending.' : 'No suggestions yet'}
                 </span>
                 <button
                   type="button"
                   onClick={() => fetchSuggestions(activeConv.id, messages)}
                   disabled={loadingSuggestions}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-bold text-brand-muted transition-colors hover:bg-white/5 hover:text-white disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold text-brand-muted transition-colors hover:bg-white/[0.06] hover:text-brand-text disabled:opacity-50"
                 >
                   <RefreshCw size={13} className={loadingSuggestions ? 'motion-safe:animate-spin' : ''} aria-hidden="true" /> New suggestions
                 </button>
               </div>
 
               {loadingSuggestions ? (
-                <div className="mb-3 space-y-1.5"><div className="skeleton h-8" /><div className="skeleton h-8" /></div>
+                <div className="mb-3 space-y-2"><div className="skeleton h-10" /><div className="skeleton h-10" /></div>
               ) : suggestions.length > 0 && (
-                <div className="mb-3 flex flex-col gap-1.5">
+                <div className="mb-3 flex flex-col gap-2">
                   {suggestions.map((suggestion, i) => (
                     <button
                       key={i}
                       type="button"
                       onClick={() => setInput(suggestion)}
-                      className="rounded-xl border border-brand-border bg-brand-card px-3 py-2 text-left text-sm text-brand-text transition-colors hover:border-brand-purple/60"
+                      className="rounded-2xl bg-brand-card px-4 py-2.5 text-left text-[15px] text-brand-text ring-1 ring-inset ring-transparent transition-colors hover:ring-brand-pink"
                     >
                       {suggestion}
                     </button>

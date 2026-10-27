@@ -74,28 +74,28 @@ export default function AgentHours() {
   }
 
   return (
-    <div className="mx-3 mb-3 rounded-xl border border-brand-border p-3">
+    <div className="mx-3 mb-3 rounded-3xl bg-brand-card p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs text-brand-muted">{clockedIn ? 'On shift' : 'Your shift'}</span>
-        <span className="text-xs text-brand-muted">
-          Today <span className="font-bold tabular-nums text-white">{formatDuration(todayMinutes)}</span>
+        <span className="text-sm font-semibold text-brand-muted">{clockedIn ? 'On shift' : 'Your shift'}</span>
+        <span className="text-sm text-brand-muted">
+          Today <span className="font-bold tabular-nums text-brand-text">{formatDuration(todayMinutes)}</span>
         </span>
       </div>
 
       {clockedIn && (
         <div className="mt-1 flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
-          <span className="text-xl font-extrabold tabular-nums text-white">{formatClock(elapsedSeconds)}</span>
+          <span className="text-2xl font-black tabular-nums text-brand-text">{formatClock(elapsedSeconds)}</span>
         </div>
       )}
 
       <Button
-        variant="ghost"
+        variant={clockedIn ? 'secondary' : 'primary'}
         size="sm"
         fullWidth
         onClick={clockedIn ? handleClockOut : handleClockIn}
         disabled={loading}
-        className="mt-2.5"
+        className="mt-3"
       >
         {clockedIn
           ? <><Square size={14} aria-hidden="true" /> Clock out</>

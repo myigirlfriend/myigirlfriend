@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react'
 
-type IconButtonVariant = 'plain' | 'surface' | 'gradient'
+type IconButtonVariant = 'plain' | 'surface' | 'accent'
 
 interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {
   /** What the button does. Read by screen readers and shown as a tooltip, since there is no visible text. */
@@ -9,9 +9,9 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
 }
 
 const VARIANTS: Record<IconButtonVariant, string> = {
-  plain: 'rounded-lg p-1.5 text-brand-muted hover:bg-white/5 hover:text-white',
-  surface: 'h-9 w-9 rounded-xl bg-white/[0.06] text-brand-muted hover:bg-white/10 hover:text-white',
-  gradient: 'h-9 w-9 rounded-full bg-brand-gradient text-white shadow-brand hover:opacity-90',
+  plain: 'h-10 w-10 rounded-full text-brand-muted hover:bg-white/[0.06] hover:text-brand-text',
+  surface: 'h-10 w-10 rounded-full bg-brand-card text-brand-muted hover:bg-brand-raised hover:text-brand-text',
+  accent: 'h-10 w-10 rounded-full bg-brand-rose text-white hover:bg-brand-pink',
 }
 
 /** A button that shows only an icon. */
@@ -28,7 +28,7 @@ export default function IconButton({
       type={type}
       aria-label={label}
       title={label}
-      className={`inline-flex shrink-0 items-center justify-center transition-colors duration-150 disabled:opacity-40 ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center transition-[background-color,color,transform] duration-150 active:scale-95 disabled:opacity-40 ${VARIANTS[variant]} ${className}`}
       {...rest}
     >
       {children}

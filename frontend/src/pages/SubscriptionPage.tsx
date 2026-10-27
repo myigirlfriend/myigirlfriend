@@ -4,8 +4,8 @@ import toast from 'react-hot-toast'
 import Button from '@components/common/Button'
 import ConfirmDialog from '@components/common/ConfirmDialog'
 import MemberPage from '@components/layout/MemberPage'
-import PlanCard from '@components/subscription/PlanCard'
-import { PAID_PLANS, planLabel } from '@config/plans'
+import PlanCard, { planActionVariant } from '@components/subscription/PlanCard'
+import { FREE_PLAN, PAID_PLANS, planLabel } from '@config/plans'
 import { useCheckout } from '@hooks/useCheckout'
 import { useSubscription } from '@hooks/useSubscription'
 import { subscriptionApi } from '@services/api'
@@ -24,8 +24,8 @@ export default function SubscriptionPage() {
     const cancelled = searchParams.get('cancelled') === 'true'
     if (!upgraded && !cancelled) return
 
-    if (upgraded) toast.success('Welcome aboard! Enjoy unlimited access.')
-    if (cancelled) toast.error('Payment cancelled. No charge was made.')
+    if (upgraded) toast.success('You are in. Unlimited messages start now.')
+    if (cancelled) toast.error('Checkout was closed before paying. You have not been charged.')
     setSearchParams({}, { replace: true })
   }, [searchParams, setSearchParams])
 
@@ -41,37 +41,46 @@ export default function SubscriptionPage() {
     } finally { setCancelling(false) }
   }
 
+  // The plans step up in height, like on the landing page
+  const plans = isPaid ? PAID_PLANS : [FREE_PLAN, ...PAID_PLANS]
+  const steps = isPaid ? ['lg:min-h-[480px]', 'lg:min-h-[560px]'] : ['lg:min-h-[400px]', 'lg:min-h-[480px]', 'lg:min-h-[560px]']
+
   return (
     <MemberPage
+      wide
       tabTitle="Plans"
-      title={isPaid ? 'Your subscription' : 'Unlock everything'}
-      subtitle={isPaid ? `You're on the ${planLabel(plan)} plan.` : 'No limits. Real connection.'}
+      title={isPaid ? 'Your plan' : 'Talk without limits'}
+      subtitle={isPaid
+        ? `You are on ${planLabel(plan)}. Change or cancel it here.`
+        : 'Unlimited messages, and she remembers everything you tell her.'}
     >
-      <div className="space-y-6 pt-3">
-        {PAID_PLANS.map((option) => {
-          const isCurrent = isPaid && plan === option.id
+      <div className={`grid items-end gap-2 ${isPaid ? 'md:grid-cols-2 lg:max-w-4xl' : 'md:grid-cols-3'}`}>
+        {plans.map((option, i) => {
+          const isCurrent = option.id === 'free' ? !isPaid : isPaid && plan === option.id
           // Premium already covers everything in Basic
-          const isIncluded = isPaid && plan === 'premium' && !isCurrent
+          const isIncluded = isPaid && plan === 'premium' && option.id === 'basic'
 
           return (
             <PlanCard
               key={option.id}
               plan={option}
               current={isCurrent}
-              action={isCurrent ? (
-                <Button variant="danger" fullWidth onClick={() => setConfirmingCancel(true)}>
+              className={steps[i]}
+              action={option.id === 'free' ? undefined : isCurrent ? (
+                <Button variant="secondary" fullWidth size="lg" onClick={() => setConfirmingCancel(true)}>
                   Cancel subscription
                 </Button>
               ) : (
                 <Button
-                  variant={option.popular ? 'primary' : 'secondary'}
+                  variant={planActionVariant(option.id)}
                   fullWidth
+                  size="lg"
                   disabled={isIncluded || (!!pendingPlan && pendingPlan !== option.id)}
                   loading={pendingPlan === option.id}
-                  loadingText="Redirecting…"
+                  loadingText="Opening checkout…"
                   onClick={() => checkout(option.id)}
                 >
-                  {isIncluded ? 'Included in Premium' : `Get ${option.label}`}
+                  {isIncluded ? 'Included in Premium' : `Choose ${option.label}`}
                 </Button>
               )}
             />
@@ -79,8 +88,8 @@ export default function SubscriptionPage() {
         })}
       </div>
 
-      <p className="mt-6 text-center text-xs leading-relaxed text-brand-muted">
-        Secure payment via Stripe · Cancel anytime · No hidden fees
+      <p className="mt-8 text-base leading-relaxed text-brand-muted">
+        Payment is handled by Stripe. Cancel any time and keep access until the end of the period you paid for.
       </p>
 
       <ConfirmDialog

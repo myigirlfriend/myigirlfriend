@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Users } from 'lucide-react'
+import Badge from '@components/common/Badge'
+import EmptyState from '@components/common/EmptyState'
+import Field from '@components/common/Field'
 import LoadError from '@components/common/LoadError'
+import Stat from '@components/common/Stat'
+import OperatorPage from '@components/operator/OperatorPage'
 import { operatorApi } from '@services/api'
 import { useAuthStore } from '@store/index'
 import { formatDuration, formatTime, localDateISO, localDayBounds } from '@utils/formatTime'
@@ -42,27 +48,19 @@ export default function AdminHoursPage() {
   const totalMinutes = (agents ?? []).reduce((sum, agent) => sum + (agent.totalMinutes || 0), 0)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
-      <div className="max-w-3xl">
-        <h1 className="text-2xl font-extrabold text-white">Agent hours</h1>
-        <p className="mt-1 text-sm text-brand-muted">Time each agent was clocked in on the day you choose.</p>
-
-        <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <label htmlFor="hours-date" className="field__label">Day</label>
+    <OperatorPage narrow title="Agent hours" subtitle="Time each agent was clocked in on the day you choose.">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <Field id="hours-date" label="Day">
             <input
               id="hours-date"
               type="date"
               value={selectedDate}
               max={localDateISO()}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="input input--compact input--sunken w-auto [color-scheme:dark]"
+              className="input input--compact w-auto"
             />
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-brand-muted">All agents</div>
-            <div className="text-2xl font-extrabold tabular-nums text-white">{formatDuration(totalMinutes)}</div>
-          </div>
+          </Field>
+          <Stat label="All agents" value={formatDuration(totalMinutes)} className="min-w-[12rem]" />
         </div>
 
         {failed ? (
@@ -74,22 +72,22 @@ export default function AdminHoursPage() {
             {Array.from({ length: 4 }).map((_, i) => <div key={i} className="skeleton h-16" />)}
           </div>
         ) : agents.length === 0 ? (
-          <p className="mt-6 rounded-2xl border border-dashed border-brand-border px-5 py-8 text-sm text-brand-muted">
-            There are no agents yet.
-          </p>
+          <div className="mt-6">
+            <EmptyState icon={Users} title="No agents yet" description="Hours appear here once agents clock in from their dashboard." />
+          </div>
         ) : (
-          <ul className="mt-6 divide-y divide-brand-border rounded-2xl border border-brand-border">
+          <ul className="mt-6 space-y-2">
             {agents.map((agent) => (
-              <li key={agent.id} className="px-4 py-4 sm:px-5">
+              <li key={agent.id} className="surface px-5 py-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-bold text-white">
+                    <div className="flex items-center gap-2 truncate text-base font-extrabold text-brand-text">
                       {agent.name}
-                      {agent.role === 'admin' && <span className="ml-2 font-normal text-brand-muted">admin</span>}
+                      {agent.role === 'admin' && <Badge>Admin</Badge>}
                     </div>
-                    <div className="truncate text-xs text-brand-muted">{agent.email}</div>
+                    <div className="truncate text-sm text-brand-muted">{agent.email}</div>
                   </div>
-                  <div className={`shrink-0 text-lg font-extrabold tabular-nums ${agent.totalMinutes > 0 ? 'text-white' : 'text-brand-subtle'}`}>
+                  <div className={`shrink-0 text-xl font-black tabular-nums ${agent.totalMinutes > 0 ? 'text-brand-text' : 'text-brand-subtle'}`}>
                     {formatDuration(agent.totalMinutes)}
                   </div>
                 </div>
@@ -97,24 +95,23 @@ export default function AdminHoursPage() {
                 {agent.sessions.length > 0 ? (
                   <ul className="mt-3 flex flex-wrap gap-2">
                     {agent.sessions.map((session) => (
-                      <li key={session.clock_in} className="rounded-lg bg-white/5 px-2.5 py-1 text-xs tabular-nums text-brand-muted">
-                        <span className="font-bold text-white">{sessionTime(session.clock_in, selectedDate)}</span>
+                      <li key={session.clock_in} className="rounded-full bg-brand-card px-3 py-1 text-sm tabular-nums text-brand-muted">
+                        <span className="font-bold text-brand-text">{sessionTime(session.clock_in, selectedDate)}</span>
                         {' to '}
                         {session.clock_out
-                          ? <span className="font-bold text-white">{sessionTime(session.clock_out, selectedDate)}</span>
+                          ? <span className="font-bold text-brand-text">{sessionTime(session.clock_out, selectedDate)}</span>
                           : <span className="font-bold text-emerald-300">now</span>}
                         {` (${formatDuration(sessionMinutes(session))})`}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-1 text-xs text-brand-muted">Did not clock in</p>
+                  <p className="mt-1 text-sm text-brand-muted">Did not clock in</p>
                 )}
               </li>
             ))}
           </ul>
         )}
-      </div>
-    </div>
+    </OperatorPage>
   )
 }

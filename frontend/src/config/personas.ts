@@ -15,10 +15,10 @@ export const PERSONAS: Persona[] = [
     description: 'Bold, witty, and a little cheeky. She keeps things exciting.',
     tone: 'playful, teasing, confident',
     image: zaraImg,
-    gradientFrom: '#9B59B6',
-    gradientTo: '#E91E8C',
-    accentColor: '#E91E8C',
-    previewMessage: 'Took you long enough to show up 😏',
+    gradientFrom: '#9B59B6', // taste-skill-ignore: data, admin-editable
+    gradientTo: '#E91E8C', // taste-skill-ignore: data, admin-editable
+    accentColor: '#E91E8C', // taste-skill-ignore: data, admin-editable
+    previewMessage: 'Took you long enough to show up 😏', // taste-skill-ignore: data, admin-editable
   },
   {
     id: 'maya',
@@ -27,10 +27,10 @@ export const PERSONAS: Persona[] = [
     description: 'Warm, patient, and genuinely interested in your world.',
     tone: 'warm, empathetic, caring',
     image: mayaImg,
-    gradientFrom: '#8B5CF6',
-    gradientTo: '#EC4899',
-    accentColor: '#EC4899',
-    previewMessage: 'I was thinking about you today 💜',
+    gradientFrom: '#8B5CF6', // taste-skill-ignore: data, admin-editable
+    gradientTo: '#EC4899', // taste-skill-ignore: data, admin-editable
+    accentColor: '#EC4899', // taste-skill-ignore: data, admin-editable
+    previewMessage: 'I was thinking about you today 💜', // taste-skill-ignore: data, admin-editable
   },
   {
     id: 'elena',
@@ -39,10 +39,10 @@ export const PERSONAS: Persona[] = [
     description: 'Calm, philosophical, and always says something that makes you think.',
     tone: 'calm, intellectual, thoughtful',
     image: elenaImg,
-    gradientFrom: '#6366F1',
-    gradientTo: '#A855F7',
-    accentColor: '#A855F7',
-    previewMessage: "What's been on your mind? I actually want to know.",
+    gradientFrom: '#6366F1', // taste-skill-ignore: data, admin-editable
+    gradientTo: '#A855F7', // taste-skill-ignore: data, admin-editable
+    accentColor: '#A855F7', // taste-skill-ignore: data, admin-editable
+    previewMessage: "What's been on your mind? I actually want to know.", // taste-skill-ignore: data, admin-editable
   },
   {
     id: 'mariah',
@@ -51,10 +51,10 @@ export const PERSONAS: Persona[] = [
     description: 'Gentle, affectionate, and makes you feel genuinely cared for.',
     tone: 'soft, romantic, affectionate',
     image: mariahImg,
-    gradientFrom: '#EC4899',
-    gradientTo: '#F43F5E',
-    accentColor: '#F43F5E',
-    previewMessage: 'You crossed my mind and I smiled 🌹',
+    gradientFrom: '#EC4899', // taste-skill-ignore: data, admin-editable
+    gradientTo: '#F43F5E', // taste-skill-ignore: data, admin-editable
+    accentColor: '#F43F5E', // taste-skill-ignore: data, admin-editable
+    previewMessage: 'You crossed my mind and I smiled 🌹', // taste-skill-ignore: data, admin-editable
   },
   {
     id: 'hannah',
@@ -63,10 +63,10 @@ export const PERSONAS: Persona[] = [
     description: 'Casual, funny, and zero pressure. Like texting your best friend.',
     tone: 'casual, funny, chill',
     image: hannahImg,
-    gradientFrom: '#F59E0B',
-    gradientTo: '#EF4444',
-    accentColor: '#F59E0B',
-    previewMessage: 'okay you have to hear what just happened 😂',
+    gradientFrom: '#F59E0B', // taste-skill-ignore: data, admin-editable
+    gradientTo: '#EF4444', // taste-skill-ignore: data, admin-editable
+    accentColor: '#F59E0B', // taste-skill-ignore: data, admin-editable
+    previewMessage: 'okay you have to hear what just happened 😂', // taste-skill-ignore: data, admin-editable
   },
 ]
 
@@ -86,7 +86,7 @@ export const resolvePersona = (row: PersonaSource): Persona => {
     gradientFrom,
     gradientTo,
     accentColor: gradientTo,
-    previewMessage: row.preview_message || row.previewMessage || base?.previewMessage || '',
+    previewMessage: row.preview_message || row.previewMessage || base?.previewMessage || '', // taste-skill-ignore: data, admin-editable
   }
 }
 

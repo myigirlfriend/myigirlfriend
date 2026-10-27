@@ -3,32 +3,50 @@
 @tailwind utilities;
 
 /* ─── Tokens ───────────────────────────────────────────────────
-   The single source for brand colours, gradients and shadows.
-   tailwind.config.ts reads these, so `bg-brand-card`, `text-brand-muted`,
-   `bg-brand-gradient` etc. all resolve here. Colours are space-separated RGB
-   channels so Tailwind opacity modifiers (`bg-brand-purple/15`) keep working. */
+   The single source for brand colours. tailwind.config.ts reads these, so `bg-brand-card`,
+   `text-brand-muted` etc. all resolve here. Colours are space-separated RGB channels so
+   Tailwind opacity modifiers (`bg-brand-purple/15`) keep working.
+
+   The brand stays near-black, purple and pink. Surfaces are told apart by a step in tone,
+   never by a glow or an outline. The purple → pink gradient belongs to the logo only. */
 :root {
+  /* Brand */
   --color-brand-purple: 155 89 182;
   --color-brand-pink: 233 30 140;
-  --color-brand-glow: 26 10 46;
+  /* The pink deepened just enough for white button labels to pass WCAG AA */
+  --color-brand-rose: 214 24 125;
+  /* Deep plum: the brand purple at night. Used as a whole field of colour. */
+  --color-brand-plum: 38 14 52;
+  --color-brand-plum-2: 58 22 78;
+  --color-brand-plum-3: 84 34 110;
+
+  /* Neutrals, one step apart */
   --color-brand-dark: 10 10 10;
-  --color-brand-surface: 17 17 17;
-  --color-brand-card: 26 26 26;
-  --color-brand-border: 42 42 42;
-  --color-brand-text: 249 250 251;
+  --color-brand-surface: 20 18 22;
+  --color-brand-card: 30 27 33;
+  --color-brand-raised: 41 37 45;
+  /* Only for form fields and data tables */
+  --color-brand-border: 52 47 57;
+
+  --color-brand-text: 249 247 250;
   /* Secondary text. Passes WCAG AA on every surface above. */
-  --color-brand-muted: 161 161 170;
+  --color-brand-muted: 176 170 184;
   /* Placeholders and de-emphasised values only, never body copy */
-  --color-brand-subtle: 113 113 122;
+  --color-brand-subtle: 128 122 136;
 
-  --gradient-brand: linear-gradient(135deg, rgb(var(--color-brand-purple)), rgb(var(--color-brand-pink)));
-  --gradient-brand-soft: linear-gradient(135deg, rgb(var(--color-brand-purple) / 0.15), rgb(var(--color-brand-pink) / 0.15));
-  --gradient-page: radial-gradient(ellipse at top, rgb(var(--color-brand-glow)) 0%, rgb(var(--color-brand-dark)) 60%);
 
-  --shadow-brand: 0 0 20px rgb(var(--color-brand-purple) / 0.3);
-  --shadow-brand-lg: 0 0 40px rgb(var(--color-brand-pink) / 0.2);
 
-  --font-sans: 'Nunito', sans-serif;
+  --gradient-brand: linear-gradient(135deg, rgb(var(--color-brand-purple)), rgb(var(--color-brand-pink))); /* taste-skill-ignore: logo only */
+
+  --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Page frame: one pair of outer margins everywhere */
+  --gutter: clamp(16px, 3.2vw, 40px);
+
+  color-scheme: dark;
 }
 
 @layer base {
@@ -36,68 +54,99 @@
     box-sizing: border-box;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     background-color: rgb(var(--color-brand-dark));
     color: rgb(var(--color-brand-text));
     font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
   }
 
   /* One keyboard focus style for every interactive element */
-  :where(a, button, summary, [role='button']):focus-visible {
+  :where(a, button, summary, input, select, textarea, [role='button'], [tabindex]):focus-visible {
     outline: 2px solid rgb(var(--color-brand-pink));
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: rgb(var(--color-brand-surface));
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgb(var(--color-brand-purple));
-    border-radius: 4px;
+  ::selection {
+    background: rgb(var(--color-brand-pink));
+    color: rgb(var(--color-brand-dark));
   }
 }
 
 /* ─── Components ───────────────────────────────────────────────
    Named block--modifier: a base class plus modifiers that only override what changes.
-   Prefer the React primitives in components/common (Button, IconButton, Badge…);
-   use these classes directly only where a primitive does not fit, e.g. a <Link> styled as a button. */
+   Prefer the React primitives in components/common (Button, ButtonLink, Field, Stat…);
+   use these classes directly only where a primitive does not fit.
+
+   Shape rule, used everywhere: controls (buttons, inputs, chips) are pills; app panels are
+   rounded-3xl; chat bubbles are rounded-[1.4rem]; photographs on the landing page are square. */
 @layer components {
   /* Page backdrop shared by member-facing screens */
   .page {
-    @apply min-h-[100dvh] bg-brand-dark bg-page-glow;
+    @apply min-h-[100dvh] bg-brand-dark;
   }
 
-  .gradient-text {
-    @apply bg-brand-gradient bg-clip-text text-transparent;
+  /* Outer frame: equal margins on both sides at every width */
+  .frame {
+    @apply mx-auto w-full max-w-[1400px];
+    padding-inline: var(--gutter);
+  }
+
+  /* Display type: the poster voice */
+  .display {
+    @apply font-black;
+    letter-spacing: -0.045em;
+    line-height: 0.88;
+  }
+
+  .heading {
+    @apply font-black text-brand-text;
+    letter-spacing: -0.03em;
+    line-height: 1;
   }
 
   /* Button */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent
-           px-6 py-3 text-sm font-bold text-white transition duration-150
-           active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full
+           px-6 py-3 text-base font-extrabold text-white
+           transition-[transform,background-color,color,opacity] duration-150
+           active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+    transition-timing-function: var(--ease-out);
   }
   .btn--primary {
-    @apply bg-brand-gradient bg-origin-border shadow-brand hover:opacity-90;
+    @apply bg-brand-rose;
   }
   .btn--secondary {
-    @apply border-white/15 bg-white/[0.08] hover:bg-white/[0.12];
+    @apply bg-brand-raised;
   }
   .btn--ghost {
-    @apply border-brand-border hover:border-brand-purple hover:bg-white/5;
+    @apply bg-transparent text-brand-text ring-1 ring-inset ring-brand-border;
   }
   .btn--danger {
-    @apply border-red-400/30 text-red-400 hover:bg-red-400/10;
+    @apply bg-red-500/15 text-red-300;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn--primary:hover { @apply bg-brand-pink; }
+    .btn--secondary:hover { @apply bg-brand-border; }
+    .btn--ghost:hover { @apply bg-white/[0.06]; }
+    .btn--danger:hover { @apply bg-red-500/25; }
   }
   .btn--xs {
-    @apply px-3 py-1.5;
+    @apply px-3.5 py-1.5 text-sm;
   }
   .btn--sm {
-    @apply px-4 py-2.5;
+    @apply px-4 py-2 text-sm;
   }
   .btn--lg {
     @apply px-8 py-4 text-lg;
@@ -106,42 +155,67 @@
     @apply w-full;
   }
 
+  /* Text link with an underline that appears on hover */
+  .link {
+    @apply rounded font-bold text-brand-text underline decoration-transparent decoration-2 underline-offset-4 transition-colors;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link:hover { @apply decoration-brand-pink; }
+  }
+  .link--accent {
+    @apply text-brand-pink;
+  }
+  .link--muted {
+    @apply font-semibold text-brand-muted;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .link--muted:hover { @apply text-brand-text; }
+  }
+
   /* Form field */
   .field__label {
-    @apply mb-1.5 block text-sm font-bold text-white;
+    @apply mb-2 block text-sm font-bold text-brand-text;
   }
   .field__help {
-    @apply mt-1.5 text-sm text-brand-muted;
+    @apply mt-2 text-sm text-brand-muted;
   }
   .field__error {
-    @apply mt-1.5 text-sm font-semibold text-red-400;
+    @apply mt-2 text-sm font-bold text-red-300;
   }
 
   .input {
-    @apply w-full rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-brand-text
-           transition-colors duration-150 placeholder:text-brand-subtle
-           focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/25;
+    @apply w-full rounded-2xl bg-brand-card px-4 py-3.5 text-base text-brand-text
+           ring-1 ring-inset ring-brand-border transition-[box-shadow,background-color] duration-150
+           placeholder:text-brand-subtle
+           focus:outline-none focus:ring-2 focus:ring-brand-pink;
+  }
+  .input[aria-invalid='true'] {
+    @apply ring-red-400;
   }
   /* Denser input for the dashboard and the chat composer */
   .input--compact {
-    @apply px-3.5 py-2.5;
+    @apply rounded-xl px-3.5 py-2.5;
   }
   /* For inputs that sit on a card-coloured panel */
   .input--sunken {
     @apply bg-brand-surface;
   }
 
-  /* Card */
+  /* App panel: one tone step up from the page */
   .surface {
-    @apply rounded-2xl border border-white/[0.08] bg-white/[0.04];
+    @apply rounded-3xl bg-brand-surface;
   }
+  .surface--raised {
+    @apply bg-brand-card;
+  }
+  /* The one panel on a screen that should lead */
   .surface--accent {
-    @apply border-brand-purple/30 bg-brand-gradient-soft;
+    @apply bg-brand-plum;
   }
 
   /* Loading placeholder */
   .skeleton {
-    @apply rounded-xl bg-white/5 motion-safe:animate-pulse;
+    @apply rounded-2xl bg-white/[0.06] motion-safe:animate-pulse;
   }
 }
 
@@ -152,15 +226,22 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
-/* Typing dots animation */
+/* Typing dots */
 @keyframes typing-dot {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-6px); opacity: 1; }
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-5px); opacity: 1; }
 }
 .typing-dot {
   animation: typing-dot 1.2s ease-in-out infinite;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.15s; }
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .typing-dot { animation: none; opacity: 0.8; }
+}

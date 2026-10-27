@@ -31,13 +31,13 @@ export default function Timer() {
   return (
     <div
       role="timer"
-      aria-label="Free time left"
-      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold tabular-nums ${
-        isLow ? 'border-red-400/30 bg-red-400/10 text-red-400' : 'border-brand-border text-brand-muted'
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-extrabold tabular-nums ${
+        isLow ? 'bg-red-400/15 text-red-300' : 'bg-brand-card text-brand-muted'
       }`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${isLow ? 'animate-pulse bg-red-400' : 'bg-brand-purple'}`} />
+      <span className="sr-only">Free time left: </span>
       {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+      <span className="font-semibold">free</span>
     </div>
   )
 }
