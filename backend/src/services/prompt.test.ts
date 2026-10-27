@@ -37,6 +37,19 @@ describe('buildSystemPrompt', () => {
     expect(prompt).toContain('Loves karaoke.')
   })
 
+  it('includes her profile and opening line alongside a dashboard prompt', () => {
+    const prompt = buildSystemPrompt({
+      persona: { id: 'tatiana', prompt: 'You are Tatiana.', tone: 'relaxed, witty, direct', description: 'Nights in and good music.', preview_message: 'Staying in tonight. Come keep me company?' },
+    })
+    expect(prompt).toContain('You are Tatiana.')
+    expect(prompt).toContain('Your profile says: Nights in and good music.')
+    expect(prompt).toContain('"Staying in tonight. Come keep me company?"')
+  })
+
+  it('gives a witty, direct companion the dry voice', () => {
+    expect(voiceFor({ id: 'x', tone: 'relaxed, witty, direct' })).toMatch(/deadpan/)
+  })
+
   it('always includes the texting rules', () => {
     const prompt = buildSystemPrompt({ persona: 'maya' })
     expect(prompt).toContain('You are texting, not writing')

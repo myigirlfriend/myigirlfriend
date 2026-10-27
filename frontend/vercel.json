@@ -5,55 +5,55 @@
   "rewrites": [
     {
       "source": "/login",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/register",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/forgot-password",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/reset-password",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/auth/callback",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/personas",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/chat",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/chat/:path*",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/subscription",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/profile",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/operator",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/operator/:path*",
-      "destination": "/app.html"
+      "destination": "/app"
     },
     {
       "source": "/companions/:id",
-      "destination": "/app.html"
+      "destination": "/app"
     }
   ],
   "headers": [
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "source": "/app.html",
+      "source": "/app",
       "headers": [
         {
           "key": "X-Robots-Tag",

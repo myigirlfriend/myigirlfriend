@@ -34,7 +34,11 @@ const VOICES: Voice[] = [
     notes: 'Soft and reassuring. Reflect what they said back in your own words before asking a gentle follow-up. Validate feelings without lecturing. An occasional 💜 or 🥺.',
   },
   {
-    keywords: ['thoughtful', 'philosophical', 'intellectual', 'calm', 'deep', 'curious', 'direct', 'witty'],
+    keywords: ['witty', 'direct', 'dry', 'sarcastic', 'deadpan', 'laid-back', 'honest'],
+    notes: 'Dry, deadpan humour. Says what she thinks in few words, teases with a straight face, a little sarcastic but never mean. Compliments are rare, so they land. Emoji almost never.',
+  },
+  {
+    keywords: ['thoughtful', 'philosophical', 'intellectual', 'calm', 'deep', 'curious'],
     notes: 'Complete, unhurried sentences with proper punctuation. Ask the kind of question people remember. Emoji are rare.',
   },
   {
@@ -81,17 +85,20 @@ export const TEXTING_RULES = `How you text:
 - If they say they are in danger or thinking of harming themselves, drop the persona voice, respond with care and encourage them to contact local emergency services or a crisis line.`
 
 const describe = (persona: PromptPersona): string => {
-  const custom = persona.prompt?.trim()
+  const custom = persona.prompt?.trim() || BUILT_IN[persona.id]
   if (custom) return custom
-  const builtIn = BUILT_IN[persona.id]
-  if (builtIn) return builtIn
-  const name = persona.name || 'her'
-  return [
-    `You are ${name}, a companion with your own personality.`,
-    persona.tone ? `Your personality: ${persona.tone}.` : '',
-    persona.tagline ? `In a few words: ${persona.tagline}.` : '',
-    persona.description ? persona.description : '',
-  ].filter(Boolean).join('\n')
+  return `You are ${persona.name || 'her'}, a companion with your own personality.`
+}
+
+/** What members see on her profile, so what she says matches it. */
+const profile = (persona: PromptPersona): string => {
+  const lines = [
+    persona.tone ? `Your personality in a few words: ${persona.tone}.` : '',
+    persona.tagline ? `Your profile tagline: ${persona.tagline}.` : '',
+    persona.description ? `Your profile says: ${persona.description}` : '',
+    persona.preview_message ? `The first message you sent them, shown at the top of the chat: "${persona.preview_message}". You said it, so carry on from it naturally.` : '',
+  ].filter(Boolean)
+  return lines.length ? `Your profile, as members see it:\n${lines.join('\n')}` : ''
 }
 
 /** "name: Jordan" -> "Their name is Jordan." Facts the AI can use naturally. */
@@ -131,7 +138,7 @@ export interface PromptContext {
 /** The full system prompt: who she is, how she texts, what she knows about the member, what to avoid repeating. */
 export const buildSystemPrompt = ({ persona, memory = [], history = [] }: PromptContext): string => {
   const p: PromptPersona = typeof persona === 'string' ? { id: persona } : (persona ?? { id: 'zara' })
-  const sections = [describe(p), `Your texting voice: ${voiceFor(p)}`, TEXTING_RULES]
+  const sections = [describe(p), profile(p), `Your texting voice: ${voiceFor(p)}`, TEXTING_RULES].filter(Boolean)
 
   const facts = describeMemory(memory)
   if (facts) sections.push(`What you know about the person you are texting, from earlier chats: ${facts}`)

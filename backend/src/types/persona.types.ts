@@ -4,7 +4,7 @@ import type { PersonaRow } from './db.types'
 export type PublicPersona = Omit<PersonaRow, 'prompt'>
 
 /** Enough of a persona to build its system prompt. */
-export type PromptPersona = Pick<PersonaRow, 'id'> & Partial<Pick<PersonaRow, 'name' | 'tone' | 'prompt' | 'tagline' | 'description'>>
+export type PromptPersona = Pick<PersonaRow, 'id'> & Partial<Pick<PersonaRow, 'name' | 'tone' | 'prompt' | 'tagline' | 'description' | 'preview_message'>>
 
 export interface PersonasResponse {
   personas: PublicPersona[]

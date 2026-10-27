@@ -4,7 +4,7 @@ import { FREE_MESSAGE_LIMIT, FREE_SESSION_MS } from '@config/limits'
 import { chatApi } from '@services/api'
 import { useChatStore, useSubStore } from '@store/index'
 import { errorMessage } from '@utils/text'
-import { typingDelay, wait } from '@utils/typingDelay'
+import { readingPause, typingDuration, wait } from '@utils/typingDelay'
 import type { Message } from '@/types'
 
 export function useChat(conversationId: string | undefined) {
@@ -60,27 +60,45 @@ export function useChat(conversationId: string | undefined) {
       created_at: new Date().toISOString(),
     }
     addMessage(userMessage)
-    setTyping(true)
 
+    // Phase 1: a random pause before she starts typing. The request is already on its way meanwhile.
     const sentAt = Date.now()
+    const pause = readingPause()
+    let typingSince: number | null = null
+    const startTyping = () => {
+      if (typingSince !== null) return
+      typingSince = Date.now()
+      setTyping(true)
+    }
+    const pauseTimer = setTimeout(startTyping, pause)
+    const stillHere = () => useChatStore.getState().activeConversationId === conversationId
+
     try {
       const data = await chatApi.send(conversationId, content)
 
-      // Keep "typing…" on for as long as a person would take to write this reply.
-      // The time the server already took counts towards it.
       if (data.message) {
-        const remaining = typingDelay(data.message.content.length) - (Date.now() - sentAt)
-        if (remaining > 0) await wait(remaining)
+        // A fast server does not cut her pause short
+        const pauseLeft = pause - (Date.now() - sentAt)
+        if (pauseLeft > 0) await wait(pauseLeft)
+        clearTimeout(pauseTimer)
+        startTyping()
+
+        // Phase 2: "typing…" for about as long as this reply takes to write. A slow server counts towards it.
+        const typingLeft = typingDuration(data.message.content.length) - (Date.now() - (typingSince ?? Date.now()))
+        if (typingLeft > 0) await wait(typingLeft)
+      } else {
+        clearTimeout(pauseTimer)
       }
 
       // The member may have opened another chat while she was "typing"
-      if (useChatStore.getState().activeConversationId !== conversationId) return
+      if (!stillHere()) return
       setTyping(false)
 
       // There is no reply when the server blocked the message at the free limit
       if (data.message) addMessage(data.message)
       if (data.triggerUpsell) triggerUpsell()
     } catch (err) {
+      clearTimeout(pauseTimer)
       setTyping(false)
       toast.error(errorMessage(err, 'Message failed. Try again.'))
     }
