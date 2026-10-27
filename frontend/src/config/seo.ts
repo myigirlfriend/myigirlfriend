@@ -11,7 +11,7 @@ import { traits } from '@utils/text'
 export const SITE_URL = 'https://myigirlfriend.com'
 export const SITE_NAME = 'myigirlfriend'
 export const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`
-export const SUPPORT_EMAIL = 'Customerservice@myigirlfriend.com'
+export const SUPPORT_EMAIL = 'customerservice@myigirlfriend.com'
 
 export const SOCIAL_PROFILES = [
   'https://x.com/myigirlfriend',

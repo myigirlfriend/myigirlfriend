@@ -5,7 +5,7 @@ import { GUIDES } from '@/content/guides'
 import { SECTION_LINKS, SiteLink } from './LandingNav'
 import { RedditIcon, TikTokIcon, XIcon } from './SocialIcons'
 
-const SUPPORT_EMAIL = 'Customerservice@myigirlfriend.com'
+const SUPPORT_EMAIL = 'customerservice@myigirlfriend.com'
 
 const SOCIAL_LINKS = [
   { label: 'X', href: 'https://x.com/myigirlfriend?s=21', Icon: XIcon },
