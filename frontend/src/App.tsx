@@ -1,6 +1,7 @@
 import { Suspense, lazy, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from '@components/common/Navbar'
+import ScrollToTop from '@components/common/ScrollToTop'
 // Public pages are bundled with the app (not loaded on demand) so their prerendered HTML is never swapped for a spinner
 import AboutPage from '@pages/AboutPage'
 import CompanionProfilePage from '@pages/CompanionProfilePage'
@@ -114,6 +115,7 @@ export default function App() {
       </Suspense>
 
       <Navbar />
+      <ScrollToTop />
     </>
   )
 }
