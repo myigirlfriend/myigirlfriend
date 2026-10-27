@@ -6,3 +6,6 @@ dist/
 
 .vercel
 .env*
+
+# Design and SEO test screenshots, local only
+.taste-skill/
