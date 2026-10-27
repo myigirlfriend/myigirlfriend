@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from '@components/common/Logo'
-import { SECTION_LINKS } from './LandingNav'
+import { GUIDES } from '@/content/guides'
+import { SECTION_LINKS, SiteLink } from './LandingNav'
 import { RedditIcon, TikTokIcon, XIcon } from './SocialIcons'
 
 const SUPPORT_EMAIL = 'Customerservice@myigirlfriend.com'
@@ -20,6 +21,7 @@ const ACCOUNT_LINKS = [
 ]
 
 const LEGAL_LINKS = [
+  { label: 'About us', to: '/about' },
   { label: 'Terms of Service', to: '/terms' },
   { label: 'Privacy Policy', to: '/privacy' },
 ]
@@ -37,7 +39,7 @@ export default function SiteFooter() {
   return (
     <footer className="bg-brand-dark pb-10 pt-[clamp(72px,8vw,120px)]">
       <div className="frame">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1.2fr_1fr_1fr]">
           <div>
             <Logo size="lg" />
             <p className="mt-5 max-w-[34ch] text-base leading-relaxed text-brand-muted">
@@ -62,7 +64,13 @@ export default function SiteFooter() {
 
           <Column title="Explore">
             {SECTION_LINKS.map((link) => (
-              <li key={link.href}><a href={link.href} className="link link--muted">{link.label}</a></li>
+              <li key={link.href}><SiteLink {...link} className="link link--muted">{link.label}</SiteLink></li>
+            ))}
+          </Column>
+
+          <Column title="Guides">
+            {GUIDES.map((guide) => (
+              <li key={guide.slug}><Link to={`/guides/${guide.slug}`} className="link link--muted">{guide.title.split(':')[0]}</Link></li>
             ))}
           </Column>
 

@@ -3,39 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>myigirlfriend: Someone to talk to. Always.</title>
-    <meta name="description" content="Meet your companion and chat with her whenever you need. Conversation, connection, companionship. Free to start, no card needed." />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="myigirlfriend" />
+    <meta name="apple-mobile-web-app-title" content="myigirlfriend" />
+
+    <!-- Page tags. Each public page's own set replaces this block at build time (scripts/prerender.mjs),
+         and src/config/seo.ts swaps them while navigating. Every tag in it carries data-seo. -->
+    <!--seo:start-->
+    <title>AI Girlfriend Chat, Free to Start | myigirlfriend</title>
+    <meta name="description" content="Meet your AI girlfriend. Swipe through companions with real personalities, match and start chatting in seconds. She remembers you. First 5 messages free." data-seo />
+    <link rel="canonical" href="https://myigirlfriend.com/" data-seo />
+    <meta property="og:type" content="website" data-seo />
+    <meta property="og:site_name" content="myigirlfriend" data-seo />
+    <meta property="og:url" content="https://myigirlfriend.com/" data-seo />
+    <meta property="og:title" content="AI Girlfriend Chat, Free to Start | myigirlfriend" data-seo />
+    <meta property="og:description" content="Meet your AI girlfriend. Swipe, match and start chatting in seconds. First 5 messages free." data-seo />
+    <meta property="og:image" content="https://myigirlfriend.com/og-image.jpg" data-seo />
+    <meta name="twitter:card" content="summary_large_image" data-seo />
+    <meta name="twitter:site" content="@myigirlfriend" data-seo />
+    <!--seo:end-->
 
     <!-- Icons -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-
-    <!-- Link previews (WhatsApp, iMessage, X, Facebook, Slack…) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="myigirlfriend" />
-    <meta property="og:url" content="https://myigirlfriend.com/" />
-    <meta property="og:title" content="myigirlfriend: Someone to talk to. Always." />
-    <meta property="og:description" content="Meet your companion and chat with her whenever you need. Free to start, no card needed." />
-    <meta property="og:image" content="https://myigirlfriend.com/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@myigirlfriend" />
-    <meta name="twitter:title" content="myigirlfriend: Someone to talk to. Always." />
-    <meta name="twitter:description" content="Meet your companion and chat with her whenever you need. Free to start, no card needed." />
-    <meta name="twitter:image" content="https://myigirlfriend.com/og-image.png" />
-    <link rel="canonical" href="https://myigirlfriend.com/" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-brand-dark text-brand-text font-sans">
-    <div id="root"></div>
+    <!--app-data-->
+    <div id="root"><!--app-html--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

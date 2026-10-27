@@ -7,6 +7,7 @@ import TypingIndicator from '@components/chat/TypingIndicator'
 import UpsellModal from '@components/chat/UpsellModal'
 import Avatar from '@components/common/Avatar'
 import IconButton from '@components/common/IconButton'
+import CompanionSheet from '@components/persona/CompanionSheet'
 import Timer from '@components/common/Timer'
 import { useChat } from '@hooks/useChat'
 import { usePageTitle } from '@hooks/usePageTitle'
@@ -19,6 +20,7 @@ export default function ChatPage() {
   const activePersona = usePersonaStore((s) => s.activePersona)
   const { messages, isTyping, sendMessage } = useChat(conversationId)
   const [input, setInput] = useState('')
+  const [profileOpen, setProfileOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   usePageTitle(activePersona ? `Chat with ${activePersona.name}` : 'Chat')
@@ -63,17 +65,24 @@ export default function ChatPage() {
     <div className="flex h-[100dvh] flex-col bg-brand-dark">
       {/* ── Header ── */}
       <header className="shrink-0 bg-brand-dark pt-[env(safe-area-inset-top,0px)]">
+        <h1 className="sr-only">Chat with {activePersona.name}</h1>
         <div className="mx-auto flex h-16 max-w-3xl items-center gap-3 px-3 sm:px-5">
           <IconButton label="Back to chats" onClick={() => navigate('/chat')}>
             <ChevronLeft size={24} />
           </IconButton>
 
-          <Avatar persona={activePersona} online />
-
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-lg font-extrabold leading-tight text-brand-text">{activePersona.name}</h1>
-            <p className="text-sm font-semibold text-emerald-300">Online</p>
-          </div>
+          <button
+            type="button"
+            onClick={() => setProfileOpen(true)}
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-full py-1 pr-3 text-left transition-colors hover:bg-white/[0.04]"
+            aria-haspopup="dialog"
+          >
+            <Avatar persona={activePersona} online />
+            <span className="min-w-0">
+              <span className="block truncate text-lg font-extrabold leading-tight text-brand-text">{activePersona.name}</span>
+              <span className="block text-sm font-semibold text-emerald-300">Online <span className="font-normal text-brand-muted">· View profile</span></span>
+            </span>
+          </button>
 
           <Timer />
         </div>
@@ -138,6 +147,7 @@ export default function ChatPage() {
       </div>
 
       <UpsellModal />
+      <CompanionSheet persona={activePersona} isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   )
 }

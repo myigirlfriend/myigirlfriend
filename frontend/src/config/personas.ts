@@ -1,8 +1,8 @@
-import elenaImg from '@/assets/personas/elena.jpeg'
-import hannahImg from '@/assets/personas/hannah.jpeg'
-import mariahImg from '@/assets/personas/mariah.jpeg'
-import mayaImg from '@/assets/personas/maya.jpeg'
-import zaraImg from '@/assets/personas/zara.jpeg'
+import elenaImg from '@/assets/personas/elena.webp'
+import hannahImg from '@/assets/personas/hannah.webp'
+import mariahImg from '@/assets/personas/mariah.webp'
+import mayaImg from '@/assets/personas/maya.webp'
+import zaraImg from '@/assets/personas/zara.webp'
 import type { Persona, PersonaSource } from '@/types'
 
 export const DEFAULT_GRADIENT = { from: '#9B59B6', to: '#E91E8C' } as const
@@ -15,6 +15,7 @@ export const PERSONAS: Persona[] = [
     description: 'Bold, witty, and a little cheeky. She keeps things exciting.',
     tone: 'playful, teasing, confident',
     image: zaraImg,
+    gallery: [],
     gradientFrom: '#9B59B6', // taste-skill-ignore: data, admin-editable
     gradientTo: '#E91E8C', // taste-skill-ignore: data, admin-editable
     accentColor: '#E91E8C', // taste-skill-ignore: data, admin-editable
@@ -27,6 +28,7 @@ export const PERSONAS: Persona[] = [
     description: 'Warm, patient, and genuinely interested in your world.',
     tone: 'warm, empathetic, caring',
     image: mayaImg,
+    gallery: [],
     gradientFrom: '#8B5CF6', // taste-skill-ignore: data, admin-editable
     gradientTo: '#EC4899', // taste-skill-ignore: data, admin-editable
     accentColor: '#EC4899', // taste-skill-ignore: data, admin-editable
@@ -39,6 +41,7 @@ export const PERSONAS: Persona[] = [
     description: 'Calm, philosophical, and always says something that makes you think.',
     tone: 'calm, intellectual, thoughtful',
     image: elenaImg,
+    gallery: [],
     gradientFrom: '#6366F1', // taste-skill-ignore: data, admin-editable
     gradientTo: '#A855F7', // taste-skill-ignore: data, admin-editable
     accentColor: '#A855F7', // taste-skill-ignore: data, admin-editable
@@ -51,6 +54,7 @@ export const PERSONAS: Persona[] = [
     description: 'Gentle, affectionate, and makes you feel genuinely cared for.',
     tone: 'soft, romantic, affectionate',
     image: mariahImg,
+    gallery: [],
     gradientFrom: '#EC4899', // taste-skill-ignore: data, admin-editable
     gradientTo: '#F43F5E', // taste-skill-ignore: data, admin-editable
     accentColor: '#F43F5E', // taste-skill-ignore: data, admin-editable
@@ -63,12 +67,19 @@ export const PERSONAS: Persona[] = [
     description: 'Casual, funny, and zero pressure. Like texting your best friend.',
     tone: 'casual, funny, chill',
     image: hannahImg,
+    gallery: [],
     gradientFrom: '#F59E0B', // taste-skill-ignore: data, admin-editable
     gradientTo: '#EF4444', // taste-skill-ignore: data, admin-editable
     accentColor: '#F59E0B', // taste-skill-ignore: data, admin-editable
     previewMessage: 'okay you have to hear what just happened 😂', // taste-skill-ignore: data, admin-editable
   },
 ]
+
+// Photos uploaded in the dashboard are stored full size. The build saves a small WebP copy of each on our own
+// domain (scripts/prerender.mjs) and passes this map of original URL -> copy; anything not in it is used as is.
+let imageMap: Record<string, string> = {}
+export const setImageMap = (map: Record<string, string>): void => { imageMap = map }
+const optimized = (src: string | null | undefined): string | null => (src ? imageMap[src] ?? src : null)
 
 // Models added or edited in the admin dashboard arrive from the API.
 // The built-in entries above fill in anything a row does not set (e.g. bundled photos).
@@ -82,7 +93,8 @@ export const resolvePersona = (row: PersonaSource): Persona => {
     tagline: row.tagline || base?.tagline || '',
     description: row.description || base?.description || '',
     tone: row.tone || base?.tone || '',
-    image: row.image_url || row.imageUrl || base?.image || null,
+    image: optimized(row.image_url || row.imageUrl) || base?.image || null,
+    gallery: (row.gallery ?? base?.gallery ?? []).filter(Boolean).map((src) => optimized(src) ?? src),
     gradientFrom,
     gradientTo,
     accentColor: gradientTo,
@@ -91,6 +103,9 @@ export const resolvePersona = (row: PersonaSource): Persona => {
 }
 
 let livePersonas: Persona[] = PERSONAS
+
+/** The current list: from the API once loaded, from the page's build data before that, else the built-in ones. */
+export const getLivePersonas = (): Persona[] => livePersonas
 
 export const setLivePersonas = (rows: PersonaSource[]): Persona[] => {
   livePersonas = rows.map(resolvePersona)

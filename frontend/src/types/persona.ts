@@ -6,6 +6,8 @@ export interface Persona {
   description: string
   tone: string
   image: string | null
+  /** More photos of her, shown on her profile. The main photo is not repeated here. */
+  gallery: string[]
   gradientFrom: string
   gradientTo: string
   accentColor: string
@@ -21,6 +23,7 @@ export interface PersonaRow {
   description?: string | null
   preview_message?: string | null
   image_url?: string | null
+  gallery?: string[] | null
   gradient_from?: string | null
   gradient_to?: string | null
   is_active?: boolean
@@ -38,6 +41,7 @@ export interface Model {
   prompt: string
   previewMessage: string
   imageUrl: string | null
+  gallery: string[]
   gradientFrom: string | null
   gradientTo: string | null
   isActive: boolean
@@ -58,9 +62,13 @@ export interface ModelFormValues {
   isActive: boolean
 }
 
-/** Body of the create / update model requests. `image` is a data URL, sent only when a new photo was chosen. */
+/**
+ * Body of the create / update model requests. `image` is a data URL, sent only when a new photo was chosen.
+ * `gallery` is the full list of extra photos in order: URLs of photos to keep and data URLs of new ones.
+ */
 export interface ModelPayload extends ModelFormValues {
   image?: string
+  gallery?: string[]
 }
 
 /** Anything `resolvePersona` accepts: an API row (snake_case) or an admin model (camelCase). */
@@ -72,6 +80,7 @@ export interface PersonaSource {
   tone?: string | null
   image_url?: string | null
   imageUrl?: string | null
+  gallery?: string[] | null
   gradient_from?: string | null
   gradientFrom?: string | null
   gradient_to?: string | null

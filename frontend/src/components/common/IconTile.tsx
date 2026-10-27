@@ -16,7 +16,7 @@ export default function IconTile({ icon: Icon, size = 'md', className = '' }: Ic
   return (
     <div
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-plum text-brand-pink ${SIZES[size].box} ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-plum text-brand-blush ${SIZES[size].box} ${className}`}
     >
       <Icon size={SIZES[size].icon} strokeWidth={2.2} />
     </div>

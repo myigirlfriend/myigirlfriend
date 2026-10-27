@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import ButtonLink from '@components/common/ButtonLink'
 import IconButton from '@components/common/IconButton'
 import Logo from '@components/common/Logo'
 
+// Real pages use the router; sections of the home page are plain links, so they scroll on the home page and navigate from anywhere else
 export const SECTION_LINKS = [
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#companions', label: 'Companions' },
-  { href: '#pricing', label: 'Pricing' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '/companions', label: 'Companions', page: true },
+  { href: '/#how-it-works', label: 'How it works', page: false },
+  { href: '/#pricing', label: 'Pricing', page: false },
+  { href: '/guides', label: 'Guides', page: true },
+  { href: '/#faq', label: 'FAQ', page: false },
 ]
+
+/** A nav link: the router for pages, a plain anchor for a section of the home page. */
+export function SiteLink({ href, page, className, children, onClick }: { href: string; page: boolean; className: string; children: ReactNode; onClick?: () => void }) {
+  return page
+    ? <Link to={href} className={className} onClick={onClick}>{children}</Link>
+    : <a href={href} className={className} onClick={onClick}>{children}</a>
+}
 
 /** The landing page's sticky top bar. */
 export default function LandingNav() {
@@ -25,9 +34,9 @@ export default function LandingNav() {
 
         <div className="hidden items-center gap-1 lg:flex">
           {SECTION_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="rounded-full px-4 py-2 text-[15px] font-bold text-brand-muted transition-colors hover:text-brand-text">
+            <SiteLink key={link.href} {...link} className="rounded-full px-4 py-2 text-[15px] font-bold text-brand-muted transition-colors hover:text-brand-text">
               {link.label}
-            </a>
+            </SiteLink>
           ))}
         </div>
 
@@ -51,9 +60,9 @@ export default function LandingNav() {
         <div id="landing-menu" className="frame pb-5 lg:hidden">
           <div className="flex flex-col gap-1 rounded-3xl bg-brand-surface p-3">
             {SECTION_LINKS.map((link) => (
-              <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-2xl px-4 py-3 text-lg font-extrabold text-brand-text hover:bg-brand-card">
+              <SiteLink key={link.href} {...link} onClick={() => setOpen(false)} className="rounded-2xl px-4 py-3 text-lg font-extrabold text-brand-text hover:bg-brand-card">
                 {link.label}
-              </a>
+              </SiteLink>
             ))}
             <Link to="/login" className="rounded-2xl px-4 py-3 text-lg font-extrabold text-brand-text hover:bg-brand-card">Sign in</Link>
             <ButtonLink to="/register" size="lg" fullWidth className="mt-2">Find your match</ButtonLink>

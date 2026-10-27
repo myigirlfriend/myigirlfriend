@@ -52,7 +52,7 @@ function Rail({ operator, onSignOut }: RailProps) {
           >
             {({ isActive }) => (
               <>
-                <Icon size={18} strokeWidth={2.2} className={isActive ? 'text-brand-pink' : ''} aria-hidden="true" />
+                <Icon size={18} strokeWidth={2.2} className={isActive ? 'text-brand-blush' : ''} aria-hidden="true" />
                 {label}
               </>
             )}

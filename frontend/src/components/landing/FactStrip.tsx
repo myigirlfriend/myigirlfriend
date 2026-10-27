@@ -15,7 +15,7 @@ export default function FactStrip() {
       <Reveal as="ul" className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
         {FACTS.map(({ title, text }) => (
           <RevealItem as="li" key={title}>
-            <span className="heading block text-[clamp(22px,2.2vw,30px)] text-brand-pink">{title}</span>
+            <span className="heading block text-[clamp(22px,2.2vw,30px)] text-brand-blush">{title}</span>
             <span className="mt-1.5 block text-base text-brand-muted">{text}</span>
           </RevealItem>
         ))}

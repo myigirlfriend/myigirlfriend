@@ -11,6 +11,7 @@ export default {
         brand: {
           purple: color('purple'),
           pink: color('pink'),
+          blush: color('blush'),
           rose: color('rose'),
           plum: color('plum'),
           'plum-2': color('plum-2'),

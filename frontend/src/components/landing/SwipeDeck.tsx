@@ -71,7 +71,7 @@ function TopCard({ persona, onChoose }: CardProps) {
       </motion.span>}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-6">
-        <h3 className="heading text-4xl text-white">{persona.name}</h3>
+        <p className="heading text-4xl text-white">{persona.name}</p>
         {persona.tagline && <p className="mt-1.5 text-base font-bold text-white/90">{traitSentence(persona.tagline)}</p>}
         {persona.description && <p className="mt-3 line-clamp-2 text-[15px] leading-snug text-white/85">{persona.description}</p>}
       </div>
@@ -106,12 +106,12 @@ export default function SwipeDeck({ personas }: { personas: Persona[] }) {
         {/* The next two cards peek out from behind */}
         {deck.length > 2 && (
           <div aria-hidden="true" className="absolute inset-0 translate-y-6 scale-[0.88] overflow-hidden rounded-[2rem] bg-brand-card opacity-60">
-            {at(2).image && <img src={at(2).image!} alt="" className="h-full w-full object-cover object-top" />}
+            {at(2).image && <img src={at(2).image!} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover object-top" />}
           </div>
         )}
         {deck.length > 1 && (
           <div aria-hidden="true" className="absolute inset-0 translate-y-3 scale-[0.94] overflow-hidden rounded-[2rem] bg-brand-card opacity-80">
-            {at(1).image && <img src={at(1).image!} alt="" className="h-full w-full object-cover object-top" />}
+            {at(1).image && <img src={at(1).image!} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover object-top" />}
           </div>
         )}
 

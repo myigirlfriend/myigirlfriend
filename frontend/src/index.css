@@ -13,6 +13,8 @@
   /* Brand */
   --color-brand-purple: 155 89 182;
   --color-brand-pink: 233 30 140;
+  /* The pink for text on dark surfaces: 6:1 on every surface, where the fill pink is borderline */
+  --color-brand-blush: 240 98 170;
   /* The pink deepened just enough for white button labels to pass WCAG AA */
   --color-brand-rose: 214 24 125;
   /* Deep plum: the brand purple at night. Used as a whole field of colour. */
@@ -38,7 +40,7 @@
 
   --gradient-brand: linear-gradient(135deg, rgb(var(--color-brand-purple)), rgb(var(--color-brand-pink))); /* taste-skill-ignore: logo only */
 
-  --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
+  --font-sans: 'Nunito Variable', 'Nunito', ui-rounded, system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -163,7 +165,7 @@
     .link:hover { @apply decoration-brand-pink; }
   }
   .link--accent {
-    @apply text-brand-pink;
+    @apply text-brand-blush;
   }
   .link--muted {
     @apply font-semibold text-brand-muted;

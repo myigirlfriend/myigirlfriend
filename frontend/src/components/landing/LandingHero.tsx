@@ -3,12 +3,16 @@ import { Link } from 'react-router-dom'
 import ButtonLink from '@components/common/ButtonLink'
 import { FREE_MESSAGE_LIMIT } from '@config/limits'
 import heroImage from '@/assets/landing/hero-night.webp'
+import heroImageSmall from '@/assets/landing/hero-night-820.webp'
 import type { Persona } from '@/types'
+import { fetchPriority } from '@utils/dom'
+import { SKIP_INTRO } from '@utils/env'
 import SwipeDeck from './SwipeDeck'
 
 const EASE = [0.16, 1, 0.3, 1] as const
+// Prerendered HTML starts at rest, so the headline is readable before any script runs
 const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 24 },
+  initial: SKIP_INTRO ? false : { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.8, delay, ease: EASE },
 })
@@ -19,11 +23,13 @@ export default function LandingHero({ personas }: { personas: Persona[] }) {
     <section className="relative isolate overflow-hidden bg-brand-dark" aria-labelledby="hero-title">
       <motion.img
         src={heroImage}
+        srcSet={`${heroImageSmall} 820w, ${heroImage} 1600w`}
+        sizes="100vw"
         alt=""
         width={1600}
         height={992}
-        fetchPriority="high"
-        initial={{ scale: 1.08, opacity: 0 }}
+        {...fetchPriority('high')}
+        initial={SKIP_INTRO ? false : { scale: 1.08, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.6, ease: EASE }}
         className="absolute inset-0 -z-10 h-full w-full object-cover object-[30%_30%]"

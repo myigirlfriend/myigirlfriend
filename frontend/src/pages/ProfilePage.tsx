@@ -105,7 +105,7 @@ export default function ProfilePage() {
               <span className="min-w-0 flex-1 py-5">
                 <span className="heading block text-3xl">{favouritePersona.name}</span>
                 <span className="mt-1.5 block text-base text-brand-muted">{plural(favourite.messageCount, 'message')} together</span>
-                <span className="mt-4 inline-flex items-center gap-1 text-base font-extrabold text-brand-pink">
+                <span className="mt-4 inline-flex items-center gap-1 text-base font-extrabold text-brand-blush">
                   Open chat <ChevronRight size={18} aria-hidden="true" />
                 </span>
               </span>

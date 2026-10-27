@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import ButtonLink from '@components/common/ButtonLink'
 import { Reveal, RevealItem } from '@components/common/Reveal'
 import PersonaTile from '@components/persona/PersonaTile'
@@ -10,7 +9,6 @@ const SHOWN = 8
 
 /** Every companion switched on in the admin dashboard, as profile cards. */
 export default function CompanionsSection({ personas }: { personas: Persona[] }) {
-  const navigate = useNavigate()
   const shown = personas.slice(0, SHOWN)
   const more = personas.length - shown.length
 
@@ -22,20 +20,20 @@ export default function CompanionsSection({ personas }: { personas: Persona[] })
             title="Meet the companions"
             intro="Playful, sweet, deep or easygoing. Each one has her own personality and her own way of talking to you."
           />
-          <ButtonLink to="/register" variant="secondary" className="mb-1">Find your match</ButtonLink>
+          <ButtonLink to="/companions" variant="secondary" className="mb-1">See all companions</ButtonLink>
         </div>
 
         <Reveal as="ul" className="mt-12 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
           {shown.map((persona) => (
             <RevealItem as="li" key={persona.id}>
-              <PersonaTile persona={persona} cta onClick={() => navigate('/register')} />
+              <PersonaTile persona={persona} cta to={`/companions/${persona.id}`} />
             </RevealItem>
           ))}
         </Reveal>
 
         {more > 0 && (
           <p className="mt-10 text-center text-lg text-brand-muted">
-            And {more} more waiting inside. <ButtonLink to="/register" variant="ghost" size="sm" className="ml-2">See them all</ButtonLink>
+            And {more} more waiting inside. <ButtonLink to="/companions" variant="ghost" size="sm" className="ml-2">See them all</ButtonLink>
           </p>
         )}
       </div>

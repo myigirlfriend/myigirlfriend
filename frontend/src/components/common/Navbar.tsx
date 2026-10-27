@@ -17,11 +17,15 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/profile', label: 'Profile', Icon: User },
 ]
 
-const HIDDEN_ON = ['/', '/login', '/register']
+const HIDDEN_ON = ['/', '/login', '/register', '/about', '/terms', '/privacy']
+const PUBLIC_SECTIONS = ['/companions', '/guides']
 
-/** Hidden on the public pages, the team dashboard and inside a conversation (which has its own header). */
+/** Hidden on the public site (it has its own nav), the team dashboard and inside a conversation (which has its own header). */
 const isHidden = (pathname: string) =>
-  HIDDEN_ON.includes(pathname) || pathname.startsWith('/operator') || /^\/chat\/[^/]+/.test(pathname)
+  HIDDEN_ON.includes(pathname)
+  || PUBLIC_SECTIONS.some((section) => pathname === section || pathname.startsWith(`${section}/`))
+  || pathname.startsWith('/operator')
+  || /^\/chat\/[^/]+/.test(pathname)
 
 /** Member navigation: a top bar on wide screens, a tab bar within thumb reach on phones. */
 export default function Navbar() {
@@ -67,7 +71,7 @@ export default function Navbar() {
               to={path}
               className={({ isActive }) =>
                 `flex min-w-[4.5rem] flex-col items-center gap-1 px-3 pb-2.5 pt-3 text-[13px] font-extrabold transition-colors duration-150 ${
-                  isActive ? 'text-brand-pink' : 'text-brand-muted hover:text-brand-text'
+                  isActive ? 'text-brand-blush' : 'text-brand-muted hover:text-brand-text'
                 }`
               }
             >

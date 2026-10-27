@@ -55,7 +55,7 @@ export default function ChatPreview({ persona }: { persona: Persona | undefined 
             <ul className="space-y-3">
               {POINTS.map((point) => (
                 <li key={point} className="flex items-start gap-3 text-lg text-white">
-                  <Check size={22} strokeWidth={3} className="mt-0.5 shrink-0 text-brand-pink" aria-hidden="true" />
+                  <Check size={22} strokeWidth={3} className="mt-0.5 shrink-0 text-brand-blush" aria-hidden="true" />
                   {point}
                 </li>
               ))}

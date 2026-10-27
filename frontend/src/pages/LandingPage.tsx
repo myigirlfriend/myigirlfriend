@@ -7,33 +7,32 @@ import FeaturesSection from '@components/landing/FeaturesSection'
 import FinalCta from '@components/landing/FinalCta'
 import HowItWorks from '@components/landing/HowItWorks'
 import LandingHero from '@components/landing/LandingHero'
-import LandingNav from '@components/landing/LandingNav'
 import PricingSection from '@components/landing/PricingSection'
-import SiteFooter from '@components/landing/SiteFooter'
+import PublicLayout from '@components/layout/PublicLayout'
+import { homeSeo } from '@config/seo'
 import { usePublicPersonas } from '@hooks/usePublicPersonas'
+import { useSeo } from '@hooks/useSeo'
+import { FAQ } from '@/content/faq'
 
 export default function LandingPage() {
+  useSeo(homeSeo(FAQ))
   // The companions switched on in the admin dashboard; however many there are
-  const personas = usePublicPersonas()
+  const { personas } = usePublicPersonas()
   // One companion voices the sample chats for the whole visit
   const [featuredId] = useState(() => personas.find((p) => p.image)?.id)
   const featured = personas.find((p) => p.id === featuredId) ?? personas.find((p) => p.image) ?? personas[0]
 
   return (
-    <div className="page overflow-x-clip">
-      <LandingNav />
-      <main>
-        <LandingHero personas={personas} />
-        <FactStrip />
-        <HowItWorks />
-        <CompanionsSection personas={personas} />
-        <FeaturesSection persona={featured} personas={personas} />
-        <ChatPreview persona={featured} />
-        <PricingSection />
-        <FaqSection />
-        <FinalCta />
-      </main>
-      <SiteFooter />
-    </div>
+    <PublicLayout>
+      <LandingHero personas={personas} />
+      <FactStrip />
+      <HowItWorks />
+      <CompanionsSection personas={personas} />
+      <FeaturesSection persona={featured} personas={personas} />
+      <ChatPreview persona={featured} />
+      <PricingSection />
+      <FaqSection />
+      <FinalCta />
+    </PublicLayout>
   )
 }

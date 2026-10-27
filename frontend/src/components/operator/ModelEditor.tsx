@@ -3,9 +3,11 @@ import { ArrowLeft, ImagePlus, Trash2, Wand2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '@components/common/Button'
 import Field from '@components/common/Field'
+import GalleryEditor from '@components/operator/GalleryEditor'
 import PersonaTile from '@components/persona/PersonaTile'
 import { resolvePersona } from '@config/personas'
 import { modelApi } from '@services/api'
+import { PHOTO_TYPES, photoProblem, readPhoto } from '@utils/image'
 import { errorMessage, plural } from '@utils/text'
 import type { Model, ModelFormValues, ModelPayload } from '@/types'
 
@@ -23,28 +25,6 @@ type TextField = 'name' | 'tagline' | 'description' | 'tone' | 'prompt' | 'previ
 const LIMITS: Record<TextField, number> = {
   name: 40, tagline: 80, description: 300, tone: 120, prompt: 4000, previewMessage: 200,
 }
-const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_PHOTO_BYTES = 15 * 1024 * 1024
-// Longest side of the photo that gets uploaded
-const PHOTO_MAX_PX = 1400
-
-// Shrink large photos in the browser so uploads stay quick. Returns a JPEG data URL.
-const readPhoto = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file)
-    const img = new Image()
-    img.onload = () => {
-      const scale = Math.min(1, PHOTO_MAX_PX / Math.max(img.width, img.height))
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.round(img.width * scale)
-      canvas.height = Math.round(img.height * scale)
-      canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height)
-      URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/jpeg', 0.88))
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file could not be read as an image')) }
-    img.src = url
-  })
 
 const draftPrompt = ({ name, tone, description }: ModelFormValues): string =>
   `You are ${name || 'her'}, an AI companion. Your personality is ${tone || 'warm, curious and a little playful'}.
@@ -77,6 +57,9 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
     isActive: model ? model.isActive : true,
   })
   const [photo, setPhoto] = useState<string | null>(null) // new photo as a data URL, if one was chosen
+  const [gallery, setGallery] = useState<string[]>(model?.gallery ?? [])
+  // Only sent when it changed, so other edits still save on a database that has not added the gallery column yet
+  const galleryChanged = JSON.stringify(gallery) !== JSON.stringify(model?.gallery ?? [])
   const [nameError, setNameError] = useState('')
   const [saveError, setSaveError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -92,8 +75,8 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
-    if (!PHOTO_TYPES.includes(file.type)) return void toast.error('Choose a JPG, PNG or WebP photo')
-    if (file.size > MAX_PHOTO_BYTES) return void toast.error('That photo is too large. Choose one under 15 MB')
+    const problem = photoProblem(file)
+    if (problem) return void toast.error(problem)
     try { setPhoto(await readPhoto(file)) } catch (err) { toast.error(errorMessage(err)) }
   }
 
@@ -107,7 +90,7 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
     setSaving(true)
     setSaveError('')
     try {
-      const body: ModelPayload = { ...form, ...(photo ? { image: photo } : {}) }
+      const body: ModelPayload = { ...form, ...(photo ? { image: photo } : {}), ...(galleryChanged ? { gallery } : {}) }
       const data = model ? await modelApi.update(model.id, body) : await modelApi.create(body)
       toast.success('Model saved')
       onSaved(data.model)
@@ -158,6 +141,8 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
               </div>
             </div>
           </div>
+
+          <GalleryEditor value={gallery} onChange={setGallery} name={form.name} />
 
           <Field id="model-name" label="Name" count={form.name.length} max={LIMITS.name} error={nameError}>
             <input id="model-name" className="input input--compact input--sunken" value={form.name} onChange={set('name')} autoComplete="off" aria-invalid={!!nameError} />

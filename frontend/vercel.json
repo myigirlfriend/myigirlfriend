@@ -1,5 +1,101 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.myigirlfriend.com"
+        }
+      ],
+      "destination": "https://myigirlfriend.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/login",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/auth/callback",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/personas",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/chat",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/chat/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/subscription",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/profile",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/operator",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/operator/:path*",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/companions/:id",
+      "destination": "/app.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/img/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/app.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
   ]
 }

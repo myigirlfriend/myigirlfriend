@@ -53,6 +53,7 @@ export default function TermsPage() {
       title="Terms of Service"
       updated="May 2026"
       intro="Please read these terms carefully before using myigirlfriend."
+      description="The terms for using myigirlfriend, the AI girlfriend chat app: accounts, the 18+ age requirement, subscriptions, cancellations and acceptable use."
       sections={SECTIONS}
     />
   )

@@ -25,6 +25,8 @@ export interface PersonaRow {
   prompt?: string | null
   preview_message?: string | null
   image_url?: string | null
+  // Added by db/migrations/003_persona_gallery.sql: extra photos shown on her profile, in order
+  gallery?: string[] | null
   gradient_from?: string | null
   gradient_to?: string | null
   is_active?: boolean

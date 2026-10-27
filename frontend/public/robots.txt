@@ -1,6 +1,13 @@
+# myigirlfriend.com
 User-agent: *
 Allow: /
-Disallow: /operator
+Disallow: /app
 Disallow: /chat
+Disallow: /personas
 Disallow: /profile
 Disallow: /subscription
+Disallow: /operator
+Disallow: /auth/
+Disallow: /reset-password
+
+Sitemap: https://myigirlfriend.com/sitemap.xml

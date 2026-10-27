@@ -1,12 +1,12 @@
-import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { privateSeo } from '@config/seo'
+import { useSeo } from './useSeo'
 
-const SITE = 'myigirlfriend'
-const HOME_TITLE = `${SITE}: Someone to talk to. Always.`
-
-/** Sets the browser tab title to "<title> · myigirlfriend" while the component is mounted. */
+/**
+ * Titles a private screen (sign in, the member app, the team dashboard) as "<title> | myigirlfriend"
+ * and keeps it out of search results. Public pages use useSeo with their own description instead.
+ */
 export function usePageTitle(title?: string | null) {
-  useEffect(() => {
-    document.title = title ? `${title} · ${SITE}` : HOME_TITLE
-    return () => { document.title = HOME_TITLE }
-  }, [title])
+  const { pathname } = useLocation()
+  useSeo(privateSeo(title, pathname))
 }

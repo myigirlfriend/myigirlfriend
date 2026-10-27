@@ -53,6 +53,7 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       updated="May 2026"
       intro="Your privacy matters. Here's exactly how we handle your data."
+      description="How myigirlfriend collects, uses and protects your data, including chats, payments and your rights to access or delete it."
       sections={SECTIONS}
     />
   )

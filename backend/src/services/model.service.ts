@@ -1,13 +1,15 @@
+import { randomUUID } from 'node:crypto'
 import { RepositoryError, conversationRepository, personaImageRepository, personaRepository } from '../repositories'
 import type { Model, ModelInput, PersonaRow, PersonaUpdate } from '../types'
 import { HttpError, badRequest, conflict, notFound, serverError } from '../utils/httpError'
 import { logger } from '../utils/logger'
+import { planGallery, type GalleryPlan } from './gallery'
 import { sortPersonas } from './persona.service'
 
 // Models are the AI personas users chat with. Admin only.
 const IMAGE_TYPES: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
-const SETUP_MESSAGE = 'Model details are not set up in the database yet. Run backend/db/migrations/001_model_details.sql in the Supabase SQL editor.'
+const SETUP_MESSAGE = 'Model details are not set up in the database yet. Run the files in backend/db/migrations (001, 002, 003) in the Supabase SQL editor.'
 
 const toModel = (p: PersonaRow, chats = 0): Model => ({
   id: p.id,
@@ -18,6 +20,7 @@ const toModel = (p: PersonaRow, chats = 0): Model => ({
   prompt: p.prompt || '',
   previewMessage: p.preview_message || '',
   imageUrl: p.image_url || null,
+  gallery: p.gallery ?? [],
   gradientFrom: p.gradient_from || null,
   gradientTo: p.gradient_to || null,
   isActive: p.is_active !== false,
@@ -75,7 +78,7 @@ const uploadImage = async (id: string, dataUrl: unknown): Promise<string> => {
   }
 
   try {
-    return await personaImageRepository.upload(`${id}-${Date.now()}.${extension}`, file, contentType)
+    return await personaImageRepository.upload(`${id}-${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`, file, contentType)
   } catch {
     throw badRequest('Could not upload the photo')
   }
@@ -85,6 +88,28 @@ const uploadImage = async (id: string, dataUrl: unknown): Promise<string> => {
 const removeImage = async (url: string | null | undefined): Promise<void> => {
   if (!url) return
   await personaImageRepository.removeByUrl(url).catch((e) => logger.warn('[models] Photo was not removed', e))
+}
+
+const removeImages = (urls: string[]): Promise<void[]> => Promise.all(urls.map(removeImage))
+
+/** Upload the new photos of a gallery plan. Returns the final list and what was uploaded (to clean up on failure). */
+const applyGallery = async (id: string, plan: GalleryPlan): Promise<{ gallery: string[]; uploaded: string[] }> => {
+  const uploaded: string[] = []
+  try {
+    const gallery: string[] = []
+    for (const entry of plan.entries) {
+      if ('keep' in entry) gallery.push(entry.keep)
+      else {
+        const url = await uploadImage(`${id}-gallery`, entry.upload)
+        uploaded.push(url)
+        gallery.push(url)
+      }
+    }
+    return { gallery, uploaded }
+  } catch (e) {
+    await removeImages(uploaded)
+    throw e
+  }
 }
 
 export const modelService = {
@@ -122,12 +147,25 @@ export const modelService = {
       throw saveError(e)
     }
 
+    const plan = 'gallery' in body ? planGallery(body.gallery, []) : null
+
     if (body.image) row.image_url = await uploadImage(id, body.image)
+    let uploaded: string[] = []
+    if (plan) {
+      try {
+        const result = await applyGallery(id, plan)
+        row.gallery = result.gallery
+        uploaded = result.uploaded
+      } catch (e) {
+        await removeImage(row.image_url)
+        throw e
+      }
+    }
 
     try {
       return toModel(await personaRepository.create({ ...row, id, name: row.name }))
     } catch (e) {
-      await removeImage(row.image_url)
+      await removeImages([row.image_url ?? '', ...uploaded].filter(Boolean))
       throw saveError(e)
     }
   },
@@ -139,19 +177,34 @@ export const modelService = {
     const row = toRow(body)
     if ('name' in row && !row.name) throw badRequest('Give the model a name')
 
+    // Checked before anything is uploaded, so a bad request leaves storage untouched
+    const plan = 'gallery' in body ? planGallery(body.gallery, existing.gallery ?? []) : null
+
     if (body.image) row.image_url = await uploadImage(id, body.image)
+    let uploaded: string[] = []
+    if (plan) {
+      try {
+        const result = await applyGallery(id, plan)
+        row.gallery = result.gallery
+        uploaded = result.uploaded
+      } catch (e) {
+        await removeImage(row.image_url)
+        throw e
+      }
+    }
     row.updated_at = new Date().toISOString()
 
     let saved: PersonaRow
     try {
       saved = await personaRepository.update(id, row)
     } catch (e) {
-      await removeImage(row.image_url)
+      await removeImages([row.image_url ?? '', ...uploaded].filter(Boolean))
       throw saveError(e)
     }
 
-    // The old photo is no longer referenced once a new one is saved
+    // Photos no longer referenced once the new ones are saved
     if (row.image_url) await removeImage(existing.image_url)
+    if (plan) await removeImages(plan.removed)
     return toModel(saved)
   },
 
@@ -171,5 +224,6 @@ export const modelService = {
       throw serverError('Could not delete the model')
     }
     await removeImage(existing.image_url)
+    await removeImages(existing.gallery ?? [])
   },
 }

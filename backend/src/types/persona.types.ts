@@ -4,7 +4,7 @@ import type { PersonaRow } from './db.types'
 export type PublicPersona = Omit<PersonaRow, 'prompt'>
 
 /** Enough of a persona to build its system prompt. */
-export type PromptPersona = Pick<PersonaRow, 'id'> & Partial<Pick<PersonaRow, 'name' | 'tone' | 'prompt'>>
+export type PromptPersona = Pick<PersonaRow, 'id'> & Partial<Pick<PersonaRow, 'name' | 'tone' | 'prompt' | 'tagline' | 'description'>>
 
 export interface PersonasResponse {
   personas: PublicPersona[]
@@ -24,6 +24,8 @@ export interface Model {
   prompt: string
   previewMessage: string
   imageUrl: string | null
+  /** Extra photos, in display order */
+  gallery: string[]
   gradientFrom: string | null
   gradientTo: string | null
   isActive: boolean
@@ -44,6 +46,11 @@ export interface ModelInput {
   isActive?: unknown
   /** New photo as a `data:image/...;base64,...` URL */
   image?: unknown
+  /**
+   * The complete gallery, in order. Each entry is either the URL of a photo already in her gallery (kept)
+   * or a `data:image/...` URL (uploaded). Photos left out are deleted. Omit to leave the gallery unchanged.
+   */
+  gallery?: unknown
 }
 
 export interface ModelsResponse {

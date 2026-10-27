@@ -31,7 +31,8 @@ app.use(cors({
 // Stripe webhook needs raw body — must come before express.json()
 app.use('/api/subscription/webhook', express.raw({ type: 'application/json' }))
 // Model photos arrive as base64 inside JSON — allow a larger body on that route only
-app.use('/api/operator/models', express.json({ limit: '8mb' }))
+// Model photos arrive as data URLs: a main photo plus up to 8 gallery photos, resized in the browser first
+app.use('/api/operator/models', express.json({ limit: '25mb' }))
 app.use(express.json())
 
 // ─── Rate limiters ────────────────────────────────────────────
