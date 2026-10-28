@@ -45,7 +45,7 @@ export default function ChatPreview({ persona }: { persona: Persona | undefined 
         </Reveal>
 
         <Reveal className="order-1 lg:order-2">
-          <RevealItem as="h2" className="heading text-[clamp(36px,4.6vw,64px)] text-white">
+          <RevealItem as="h2" className="heading text-[clamp(30px,4.6vw,64px)] text-white">
             <span id="preview-title">Chats that go somewhere</span>
           </RevealItem>
           <RevealItem as="p" className="mt-5 max-w-[46ch] text-lg leading-relaxed text-white/90">

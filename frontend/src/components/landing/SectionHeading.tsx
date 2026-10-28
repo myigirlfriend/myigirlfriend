@@ -15,7 +15,7 @@ export default function SectionHeading({ id, title, intro, align = 'start', clas
   const centred = align === 'center'
   return (
     <Reveal className={`${centred ? 'mx-auto text-center' : ''} max-w-3xl ${className}`}>
-      <RevealItem as="h2" className="heading text-[clamp(36px,4.6vw,64px)]">
+      <RevealItem as="h2" className="heading text-[clamp(30px,4.6vw,64px)]">
         <span id={id}>{title}</span>
       </RevealItem>
       {intro && (

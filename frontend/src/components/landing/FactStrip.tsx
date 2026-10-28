@@ -12,7 +12,7 @@ const FACTS = [
 export default function FactStrip() {
   return (
     <section aria-label="Why members join" className="frame pt-6">
-      <Reveal as="ul" className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
+      <Reveal as="ul" className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 sm:gap-y-8 lg:grid-cols-4">
         {FACTS.map(({ title, text }) => (
           <RevealItem as="li" key={title}>
             <span className="heading block text-[clamp(22px,2.2vw,30px)] text-brand-blush">{title}</span>

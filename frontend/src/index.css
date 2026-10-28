@@ -40,7 +40,7 @@
 
   --gradient-brand: linear-gradient(135deg, rgb(var(--color-brand-purple)), rgb(var(--color-brand-pink))); /* taste-skill-ignore: logo only */
 
-  --font-sans: 'Nunito Variable', 'Nunito', ui-rounded, system-ui, sans-serif;
+  --font-sans: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -105,17 +105,17 @@
     padding-inline: var(--gutter);
   }
 
-  /* Display type: the poster voice */
+  /* Display type: the poster voice. Poppins is wide, so it is set bold rather than black, only slightly tightened */
   .display {
-    @apply font-black;
-    letter-spacing: -0.045em;
-    line-height: 0.88;
+    @apply font-extrabold;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
   }
 
   .heading {
-    @apply font-black text-brand-text;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    @apply font-bold text-brand-text;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
   }
 
   /* Button */

@@ -20,10 +20,10 @@ const dist = join(root, 'dist')
 const serverDir = join(root, 'dist-server')
 
 const server = await import(pathToFileURL(join(serverDir, 'entry-server.js')).href)
-// The Latin subset of the font is needed for the first paint; preloading it stops the text reflowing when it arrives
-const font = readdirSync(join(dist, 'assets')).find((f) => /^nunito-latin-wght-normal-.*\.woff2$/.test(f))
-const fontPreload = font ? `<link rel="preload" href="/assets/${font}" as="font" type="font/woff2" crossorigin>\n    ` : ''
-if (!font) console.warn('[prerender] Nunito latin font file not found; it will not be preloaded')
+// The Latin body (400) and headline (800) weights are needed for the first paint; preloading them stops the text reflowing when they arrive
+const fonts = readdirSync(join(dist, 'assets')).filter((f) => /^poppins-latin-(400|800)-normal-.*\.woff2$/.test(f))
+const fontPreload = fonts.map((f) => `<link rel="preload" href="/assets/${f}" as="font" type="font/woff2" crossorigin>\n    `).join('')
+if (fonts.length < 2) console.warn('[prerender] Poppins latin font files not found; they will not be preloaded')
 const template = readFileSync(join(dist, 'index.html'), 'utf8').replace('<!--seo:start-->', `${fontPreload}<!--seo:start-->`)
 
 // ─── The companions to build pages for ────────────────────────

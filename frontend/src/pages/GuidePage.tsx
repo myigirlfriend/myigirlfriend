@@ -19,7 +19,7 @@ function Article({ guide }: { guide: Guide }) {
     <PublicLayout>
       <article className="frame max-w-[48rem] pb-20 pt-10">
         <Breadcrumbs items={[{ name: 'Home', to: '/' }, { name: 'Guides', to: '/guides' }, { name: guide.title.split(':')[0]! }]} />
-        <h1 className="heading mt-6 text-[clamp(36px,5vw,64px)]">{guide.title}</h1>
+        <h1 className="heading mt-6 text-[clamp(30px,3.8vw,52px)]">{guide.title}</h1>
         <p className="mt-4 text-base text-brand-muted">
           Updated <time dateTime={guide.updated}>{formatDate(guide.updated)}</time>
         </p>
