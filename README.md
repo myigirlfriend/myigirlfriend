@@ -34,7 +34,7 @@ theme is same
 - **Background:** `#0a0a0a` (near black)
 - **Primary gradient:** `#9B59B6` (purple) → `#E91E8C` (pink) — used on logo, buttons, active elements
 - **Text:** white on dark, muted gray for secondary
-- **Font:** Poppins (self-hosted via @fontsource/poppins)
+- **Font:** Figtree (self-hosted via @fontsource-variable/figtree), a free Proxima Nova–style geometric sans
 - **Logo tagline:** "conversation. connection. something real."
 - **Accent:** gradient border on chat bubbles, glowing purple shadow on inputs
 

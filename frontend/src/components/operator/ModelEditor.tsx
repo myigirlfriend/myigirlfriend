@@ -132,7 +132,7 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
                   ? <img src={currentImage} alt="" className="h-full w-full object-cover object-top" />
                   : <div className="flex h-full w-full items-center justify-center text-brand-muted"><ImagePlus size={22} aria-hidden="true" /></div>}
               </div>
-              <div>
+              <div className="relative">
                 <input ref={fileRef} type="file" accept={PHOTO_TYPES.join(',')} onChange={choosePhoto} className="sr-only" id="model-photo" tabIndex={-1} />
                 <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
                   <ImagePlus size={16} aria-hidden="true" /> {currentImage ? 'Change photo' : 'Choose photo'}
@@ -186,7 +186,7 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
             <legend className="field__label">Colour</legend>
             <div className="flex flex-wrap gap-2.5">
               {COLOURS.map((c) => (
-                <label key={c.name} className="cursor-pointer" title={c.name}>
+                <label key={c.name} className="relative cursor-pointer" title={c.name}>
                   <input
                     type="radio" name="model-colour" className="peer sr-only"
                     checked={c.from === form.gradientFrom && c.to === form.gradientTo}
@@ -205,7 +205,7 @@ export default function ModelEditor({ model, onClose, onSaved, onDeleted }: Mode
           </fieldset>
 
           {/* Visibility */}
-          <label className="surface flex cursor-pointer items-start gap-3 p-5">
+          <label className="surface relative flex cursor-pointer items-start gap-3 p-5">
             <input
               type="checkbox" className="peer sr-only" checked={form.isActive}
               onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}

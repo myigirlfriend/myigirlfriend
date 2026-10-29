@@ -42,7 +42,7 @@ export default function GalleryEditor({ value, onChange, name }: GalleryEditorPr
   }
 
   return (
-    <fieldset>
+    <fieldset className="relative">
       <legend className="field__label">More photos</legend>
       <p className="field__help mt-0">
         Shown on her public profile after the main photo. Up to {MAX_GALLERY}; the order here is the order members see.

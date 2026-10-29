@@ -69,7 +69,7 @@ function AddAgentModal({ isOpen, onClose, onAdded }: { isOpen: boolean; onClose:
             {(['agent', 'admin'] as const).map((role) => (
               <label
                 key={role}
-                className={`cursor-pointer rounded-2xl px-4 py-3 text-[15px] ring-inset transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-pink ${
+                className={`relative cursor-pointer rounded-2xl px-4 py-3 text-[15px] ring-inset transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-pink ${
                   form.role === role ? 'bg-brand-plum-2 text-white ring-2 ring-brand-pink' : 'bg-brand-card text-brand-muted ring-1 ring-brand-border'
                 }`}
               >

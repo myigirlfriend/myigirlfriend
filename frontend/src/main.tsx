@@ -1,12 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-// Poppins is served with the app (no request to Google Fonts before the first paint), in the weights the UI uses
-import '@fontsource/poppins/400.css'
-import '@fontsource/poppins/500.css'
-import '@fontsource/poppins/600.css'
-import '@fontsource/poppins/700.css'
-import '@fontsource/poppins/800.css'
-import '@fontsource/poppins/900.css'
+// Figtree is served with the app (no request to Google Fonts before the first paint); one variable file covers every weight
+import '@fontsource-variable/figtree'
 import './index.css'
 import { setImageMap, setLivePersonas } from '@config/personas'
 import { PRERENDERED } from '@utils/env'
